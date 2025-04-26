@@ -11,3 +11,5 @@ label.move(60, 15)
 
 window.show()
 sys.exit(app.exec_())  # PyQt6 是 exec()
+
+# This is a trial
