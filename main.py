@@ -10,6 +10,5 @@ label = QLabel('<font color="blue">Hello, PyQt!</font>', parent=window)
 label.move(60, 15)
 
 window.show()
-sys.exit(app.exec_())  # PyQt6 是 exec()
+sys.exit(app.exec_()) 
 
-# This is a trial
