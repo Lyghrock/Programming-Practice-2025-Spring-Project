@@ -66,8 +66,13 @@ def get_translation(client: OpenAI, model_name: str, text: str):
         print(f"翻译请求失败：{e}")
         return f"翻译请求失败：{e}"
 
+def translate(image_path: str) -> str:  
+    text = extract_text_from_image(image_path)
+    chinese = get_translation(client,model_name,text)
+    return chinese
 
-image_path = r"D:\\python\\Practice of programming\\Py_Qt\\5ac7c6d2a165a842b8afc6fd1a0bddd.jpg"
-text = extract_text_from_image(image_path)
-chinese = get_translation(client,model_name,text)
-print(chinese)
+
+# image_path = r"D:\\python\\Practice of programming\\Py_Qt\\5ac7c6d2a165a842b8afc6fd1a0bddd.jpg"
+# text = extract_text_from_image(image_path)
+# chinese = get_translation(client,model_name,text)
+# print(chinese)
