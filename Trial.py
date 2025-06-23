@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 import os
-from reverse_function import get_voice_token, text_to_speech
+from Reverse_Section.reverse_function import get_voice_token, text_to_speech
 
 async def test_text_to_speech():
     test_text = "操你妈"

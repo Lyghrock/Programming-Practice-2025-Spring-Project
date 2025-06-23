@@ -25,12 +25,14 @@ class Language_Learning_Widget(QWidget):
         super().__init__(parent)
         self.setWindowTitle("Language Learning Module")
         
-        v_data.Initial_Word_list = v_func.load_word_list(v_data.INITIAL_ADDRESS)
+        v_data.Initial_Word_list = v_func.load_word_list()
         
         Qt.QTimer.singleShot(0,lambda: asyncio.ensure_future(self.initialization()))
         
         # 建立Word_Query类，来动态管理这些数据
         
+        
+        # 维护一个计数器+timer动态更新下载进度？
         
     
     @asyncSlot
@@ -50,24 +52,30 @@ class Language_Learning_Widget(QWidget):
             try:
                 assert temp_res is not None
                 translation_map[word] = temp_res
-            except Exception as e:  print(f"Blank Translation??? : {e}")
+            except Exception as e:  
+                print(f"Blank Translation??? : {e}")
+                translation_map[word] = None
         
         parameters_for_SQLite = {
             "audio" : audio_map, 
             "definition" : defin_map, 
-            "translation" : translation_map
+            "translation" : translation_map,
+            "picture" : {word : None for word in v_data.Initial_Word_list}
         }
+        
+        try:    v_func.update_database(parameters_dict = parameters_for_SQLite)
+        except Exception as error:  print(f"Error occurs when storing .db: {error}")
         
     
     @asyncSlot
-    async def initialize_voice_pack(self):
+    async def initialize_voice_pack(self, language = str()):
         
         audio_address_map = dict()
-        if v_func.check_voice_directory():
-            print("Voice Database is already downloaded!")
+        if v_func.check_data_exist():
+            print("atabase is already downloaded!")
             
             for word in v_data.Initial_Word_list:
-                audio_address_map[word] = f"{word}_zh.mp3"
+                audio_address_map[word] = f"{word}_{language}.mp3"
             return audio_address_map
         
         # 此处建立一个异步HTTP客户端会话管理器(通常命名为session)（aiohttp库的引入）
@@ -90,9 +98,10 @@ class Language_Learning_Widget(QWidget):
                             lang = language, filename = f"{word}_{language}.mp3")
                         if judge_res:   audio_address_map[word] = f"{word}_{language}.mp3"
                     except Exception as error:
-                        print(f"Text_to_Voice Error: {error}")
+                        print(f"Text_to_Voice Error: {word} has {error}")
+                        audio_address_map[word] = None
             
-            all_tasks = [ simul_task(current_word,"zh") 
+            all_tasks = [ simul_task(current_word, language) 
                     for current_word in v_data.Initial_Word_list ]
                 
             await asyncio.gather(*all_tasks)
@@ -103,7 +112,7 @@ class Language_Learning_Widget(QWidget):
     async def initialize_word_definition(self):
 
         definition_map = dict() 
-        if os.path.exists(v_data.DEFINITION_ADDRESS):
+        if v_func.check_data_exist():
             try:
                 with open(v_data.DEFINITION_ADDRESS,"r",encoding = "utf-8") as f:
                     for line in f.readlines():
@@ -121,7 +130,8 @@ class Language_Learning_Widget(QWidget):
                         def_str = await v_func.text_to_definition(session, word)
                         if def_str:    definition_map[word] = def_str
                     except Exception as error:
-                        print(f"Text_to_Definition Error: {error}")
+                        print(f"Text_to_Definition Error: {word} has {error}")
+                        definition_map[word] = str()
 
             # 构建并发任务
             all_tasks = [simul_task(word) for word in v_data.Initial_Word_list]

@@ -82,21 +82,22 @@ async def text_to_speech(session, token,
             
             content_type = target_audio.headers.get("Content-Type","")
             if content_type == "audio/mp3":
-        
                 audio_content = await target_audio.read()
-                with open(file_address, "wb") as f:  
-                    f.write(audio_content)
-                    f.flush()   # 保证file是正常状态
-                    os.fsync(f.fileno())    
-                    
-                await check_file_exist(file_address)
-                if lang == "zh":   reverse_audio(file_address)
-
-                return True
             else:
                 error_for_tts = await target_audio.text()
+                with open(v_data.BLANK_AUDIO_ADDRESS,"rb") as f:
+                    audio_content = f.read()
                 print(f"Something went wrong: {error_for_tts}")
-                return False
+                
+            with open(file_address, "wb") as f:  
+                f.write(audio_content)
+                f.flush()   # 保证file是正常状态
+                os.fsync(f.fileno())    
+                    
+            await check_file_exist(file_address)
+            if lang == "zh":   reverse_audio(file_address)
+    
+            return True
                 
     # Ensure Programme Safety!
     
@@ -130,12 +131,26 @@ def reverse_audio(audio_path):
 
 
 # Programme Assistent:
-def load_word_list(wb_path):
+def load_word_list():
+    
     tmp = list()
-    try:
-        with open(wb_path, "r", encoding="utf-8") as file:
-            tmp = [line.strip() for line in file.readlines()[:INITIAL_SCALE]]
-    except Exception as e:  print(f"Error when loading: {e}")
+    
+    judge_initial = not os.path.exists(v_data.WORD_BANK_ADDRESS)
+    if not judge_initial:
+        
+        agent_for_SQLite = sqlite3.connect(v_data.WORD_BANK_ADDRESS)
+        cursor = agent_for_SQLite.cursor()
+        cursor.execute("SELECT word FROM word_bank")
+        tmp = cursor.fetchall()
+        
+        agent_for_SQLite.commit()
+        agent_for_SQLite.close()
+        
+    else:
+        try:
+            with open(v_data.INITIAL_ADDRESS, "r", encoding="utf-8") as file:
+                tmp = [line.strip() for line in file.readlines()[:INITIAL_SCALE]]
+        except Exception as e:  print(f"Error when first loading word list: {e}")
     return tmp
     
 def check_voice_directory():
@@ -150,6 +165,8 @@ def check_voice_directory():
             print(f"Unable to access the target file: {error}")
     else:   return False
 
+def check_data_exist():    return os.path.exists(v_data.WORD_BANK_ADDRESS)
+    
    
 # Crawler: 
     
@@ -245,7 +262,7 @@ def translate_text(text):
         
 # SQLite datatype:
 
-def update_database():
+def update_database(parameters_dict = dict()):
 
     judge_initial = not os.path.exists(v_data.WORD_BANK_ADDRESS)
 
@@ -255,6 +272,28 @@ def update_database():
     if judge_initial:
         cursor.execute(
     """
-        CREATE TABLE IF NOT EXIST word_bank
+        CREATE TABLE IF NOT EXISTS word_bank (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            word TEXT NOT NULL UNIQUE,
+            translation TEXT,
+            definition TEXT,
+            audio TEXT,
+            picture TEXT,
+            enable_english_mark INTEGER
+        )
     """
         )
+    
+    else:  pass
+    
+    for trait, inserter in parameters_dict.items():
+        print(f"Trying to load {trait}.")
+        cursor.executemany(
+    f'''
+        INSERT INTO word_bank (word, {trait})
+        VALUES (?, ?)
+        ON CONFLICT(word) DO UPDATE SET {trait} = excluded.{trait}
+    ''', [(key, inserter[key]) for key in inserter.keys()])
+        
+    agent_for_SQLite.commit()
+    agent_for_SQLite.close()
