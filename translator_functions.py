@@ -72,7 +72,7 @@ def translate(image_path: str) -> str:
     return chinese
 
 
-# image_path = r"D:\\python\\Practice of programming\\Py_Qt\\5ac7c6d2a165a842b8afc6fd1a0bddd.jpg"
+# image_path = r"D:\\python\\Practice of programming\\Py_Qt\\25105d4ba5bb718f0532c9411c59bc5.jpg"
 # text = extract_text_from_image(image_path)
 # chinese = get_translation(client,model_name,text)
 # print(chinese)
