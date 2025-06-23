@@ -5,12 +5,12 @@ from openai import OpenAI
 
 
 # 设置 pytesseract 使用的临时文件夹为一个干净的英文路径
-os.environ["TMP"] = "D:\\Temp"
-os.environ["TEMP"] = "D:\\Temp"
+os.environ["TMP"] = "D:\\Desk_Pet_Data_Storage\\Temp"
+os.environ["TEMP"] = "D:\\Desk_Pet_Data_Storage\\Temp"
 
 # 如果这个路径不存在，先创建
-if not os.path.exists("D:\\Temp"):
-    os.makedirs("D:\\Temp")
+if not os.path.exists("D:\\Desk_Pet_Data_Storage\\Temp"):
+    os.makedirs("D:\\Desk_Pet_Data_Storage\\Temp")
 
 pytesseract.pytesseract.tesseract_cmd = r"../Tesseract/tesseract.exe"
 
