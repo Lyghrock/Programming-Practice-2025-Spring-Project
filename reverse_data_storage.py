@@ -1,5 +1,7 @@
-
-WORD_BANK_ADDRESS = "D:\\Python_Audio_Processing\\Word_bank\\Initialized_Word_Bank.txt"
+AUDIO_ADDRESS = "D:\\Desk_Pet_Data_Storage\\Voice_Bank"
+DEFINITION_ADDRESS = "D:\\Desk_Pet_Data_Storage\\Definition_List\\definition.txt"
+INITIAL_ADDRESS = "D:\\Python_Audio_Processing\\Word_bank\\Initialized_Word_Bank.txt"
+WORD_BANK_ADDRESS = "D:\\Desk_Pet_Data_Storage\\Word_Data\\word_bank.db"
 
 Initial_Word_list = list()
 

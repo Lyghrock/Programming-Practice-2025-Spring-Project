@@ -2,6 +2,9 @@ import reverse_data_storage as v_data
 import reverse_function as v_func
 from reverse_function import AUDIO_ADDRESS,INITIAL_SCALE
 
+import os
+import sqlite3
+
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout,
     QPushButton, QTextEdit, QLabel
@@ -13,8 +16,8 @@ import asyncio
 
 from qasync import QEventLoop, asyncSlot
 
-SIMUL_BOUND = 20
-    # 这个是预下载的word_bank原始文件
+SIMUL_BOUND_VOICE = 20
+SIMUL_BOUND_DEFINITION = 8
 
 class Language_Learning_Widget(QWidget):
     
@@ -22,9 +25,11 @@ class Language_Learning_Widget(QWidget):
         super().__init__(parent)
         self.setWindowTitle("Language Learning Module")
         
+        v_data.Initial_Word_list = v_func.load_word_list(v_data.INITIAL_ADDRESS)
+        
         Qt.QTimer.singleShot(0,lambda: asyncio.ensure_future(self.initialization()))
         
-        # 建立Word_Query类来管理这些数据
+        # 建立Word_Query类，来动态管理这些数据
         
         
     
@@ -32,20 +37,38 @@ class Language_Learning_Widget(QWidget):
     async def initialization(self):
     
     # 调用百度API获得单词对应的语音文件，存入本地
-        await self.initialize_voice_pack()
+        audio_map = await self.initialize_voice_pack()
     
     # 调用爬虫程序从汉典(http网址)中爬取definition，存入.txt
-        await self.initialize_vocabulary_data()
+        defin_map = await self.initialize_word_definition()
         
-    # 建立SQLite数据库来统一存放这些单词
+    # 建立SQLite数据库来统一存放这些初始化的单词     
+        
+        translation_map = dict()
+        for word in v_data.Initial_Word_list:
+            temp_res = v_func.translate_text(word)
+            try:
+                assert temp_res is not None
+                translation_map[word] = temp_res
+            except Exception as e:  print(f"Blank Translation??? : {e}")
+        
+        parameters_for_SQLite = {
+            "audio" : audio_map, 
+            "definition" : defin_map, 
+            "translation" : translation_map
+        }
         
     
     @asyncSlot
     async def initialize_voice_pack(self):
         
+        audio_address_map = dict()
         if v_func.check_voice_directory():
             print("Voice Database is already downloaded!")
-            return 
+            
+            for word in v_data.Initial_Word_list:
+                audio_address_map[word] = f"{word}_zh.mp3"
+            return audio_address_map
         
         # 此处建立一个异步HTTP客户端会话管理器(通常命名为session)（aiohttp库的引入）
             # 用来代替requests库来发送异步请求——见reverse_fucntion
@@ -59,22 +82,53 @@ class Language_Learning_Widget(QWidget):
                 print("Fail to load API_url, token unaccessible. Please check your Account.")
             
             # Set sveral different tasks simultaneously to enhance effiency:
-            v_data.Initial_Word_list = v_func.load_word_list(v_data.WORD_BANK_ADDRESS)
             
             async def simul_task(word, language):
-                async with asyncio.Semaphore(SIMUL_BOUND):
-                    await v_func.text_to_speech(request_agent, token, text = word, 
-                        lang = language, filename = f"{word}_{language}.mp3")
+                async with asyncio.Semaphore(SIMUL_BOUND_VOICE):
+                    try:
+                        judge_res = await v_func.text_to_speech(request_agent, token, text = word, 
+                            lang = language, filename = f"{word}_{language}.mp3")
+                        if judge_res:   audio_address_map[word] = f"{word}_{language}.mp3"
+                    except Exception as error:
+                        print(f"Text_to_Voice Error: {error}")
             
-            all_tasks = list()
-            for current_word in v_data.Initial_Word_list:
-                all_tasks.append(simul_task(current_word,"zh"))
+            all_tasks = [ simul_task(current_word,"zh") 
+                    for current_word in v_data.Initial_Word_list ]
                 
             await asyncio.gather(*all_tasks)
+        
+        return audio_address_map
             
     @asyncSlot
-    async def initialize_vocabulary_data(self):
-        pass
+    async def initialize_word_definition(self):
+
+        definition_map = dict() 
+        if os.path.exists(v_data.DEFINITION_ADDRESS):
+            try:
+                with open(v_data.DEFINITION_ADDRESS,"r",encoding = "utf-8") as f:
+                    for line in f.readlines():
+                        w, d = line.split("\t")[0],line.split('\t')[1]
+                        definition_map[w] = d
+            except Exception as e:  print(f"Load_def Error: {e}")
             
+            return definition_map
+
+        async with aiohttp.ClientSession(headers=v_data.REQUEST_HEADERS) as session:
+
+            async def simul_task(word):
+                async with asyncio.Semaphore(SIMUL_BOUND_DEFINITION):
+                    try:
+                        def_str = await v_func.text_to_definition(session, word)
+                        if def_str:    definition_map[word] = def_str
+                    except Exception as error:
+                        print(f"Text_to_Definition Error: {error}")
+
+            # 构建并发任务
+            all_tasks = [simul_task(word) for word in v_data.Initial_Word_list]
+            await asyncio.gather(*all_tasks)
             
-            
+            v_func.save_definition_data(definition_map)
+
+        return definition_map
+                
+                

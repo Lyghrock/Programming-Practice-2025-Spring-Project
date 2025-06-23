@@ -4,11 +4,13 @@ import requests
 import sys
 import os
 import time
+import deep_translator as trl
 import asyncio
     # 异步请求模块———用于向API并发请求，与QtConcurrent相比加快了initialize速度
 from pydub import AudioSegment
 import pydub 
 
+import sqlite3
 
 import translate as ts
 from bs4 import BeautifulSoup
@@ -16,8 +18,6 @@ from bs4 import BeautifulSoup
 
 import reverse_data_storage as v_data
 
-AUDIO_ADDRESS = "D:\\Desk_Pet_Data_Storage\\Voice_Bank"
-DEFINITION_ADDRESS = "D:\\Desk_Pet_Data_Storage\\Definition_List\\definition.txt"
 INITIAL_SCALE = 5000
 
 App_ID = "6951303"
@@ -29,7 +29,6 @@ voice_Secret_Key = "fuSEtZ9J1lhYuqepbmFBoeg0W3QQXVv8"
 async def get_voice_token(session):
 
     # Get API token:
-    
     API_url = f"https://aip.baidubce.com/oauth/2.0/token"
     parameters = {
         "grant_type": "client_credentials",
@@ -42,12 +41,13 @@ async def get_voice_token(session):
         return token
         # Need to judge if it's None!
 
+# TTS part:
+
 async def text_to_speech(session, token,
     text, lang = "zh", default_voice_mode = 0 
     ,filename = "Unknown_Vocabulary.mp3" ):
 
     # Input text and get the corresponding audio:
-
     Text_to_Speech_url = "https://tsn.baidu.com/text2audio"
     parameters_for_audio = {
         "tex": text,
@@ -75,8 +75,8 @@ async def text_to_speech(session, token,
         async with session.post(Text_to_Speech_url, 
             data = parameters_for_audio, headers = special_head) as target_audio:
             
-            os.makedirs(AUDIO_ADDRESS, exist_ok = True )
-            file_address = os.path.join(AUDIO_ADDRESS , filename)
+            os.makedirs(v_data.AUDIO_ADDRESS, exist_ok = True )
+            file_address = os.path.join(v_data.AUDIO_ADDRESS , filename)
             
             # Store and then Reverse the audio
             
@@ -86,20 +86,25 @@ async def text_to_speech(session, token,
                 audio_content = await target_audio.read()
                 with open(file_address, "wb") as f:  
                     f.write(audio_content)
-                    f.flush()
-                    os.fsync(f.fileno())
+                    f.flush()   # 保证file是正常状态
+                    os.fsync(f.fileno())    
                     
                 await check_file_exist(file_address)
                 if lang == "zh":   reverse_audio(file_address)
+
+                return True
             else:
                 error_for_tts = await target_audio.text()
                 print(f"Something went wrong: {error_for_tts}")
+                return False
                 
     # Ensure Programme Safety!
     
     except Exception as error:
         print(f"Storage_error: {error}")
+        return False
 
+# TTS Assistent:
 async def check_file_exist(file_path, timeout=5):
     def blocking_wait():
         start = time.time()
@@ -111,11 +116,9 @@ async def check_file_exist(file_path, timeout=5):
 
 def reverse_audio(audio_path):
     
-    # 确保ffmpeg配置成功!
-    AudioSegment.converter = r"D:\Desk_Pet_Data_Storage\ffmpeg_7_1_1\bin\ffmpeg.exe"
-    AudioSegment.ffprobe = r"D:\Desk_Pet_Data_Storage\ffmpeg_7_1_1\bin\ffprobe.exe"
-    
-    print(AudioSegment.converter,AudioSegment.ffprobe)
+    # # 确保ffmpeg配置成功!
+    # AudioSegment.converter = pydub.utils.which("ffmpeg")
+    # AudioSegment.ffprobe = pydub.utils.which("ffprobe")
     
     try:
         audio = AudioSegment.from_file(audio_path, format = "mp3")
@@ -125,6 +128,8 @@ def reverse_audio(audio_path):
     except Exception as error:  print(f"Error occurs:{error}")
         
 
+
+# Programme Assistent:
 def load_word_list(wb_path):
     tmp = list()
     try:
@@ -135,16 +140,18 @@ def load_word_list(wb_path):
     
 def check_voice_directory():
     
-    if os.path.exists(AUDIO_ADDRESS) and os.path.isdir(AUDIO_ADDRESS):
+    if os.path.exists(v_data.AUDIO_ADDRESS) and os.path.isdir(v_data.AUDIO_ADDRESS):
         # check if the corresponding folder exists
         try:
-            with os.scandir(AUDIO_ADDRESS) as entries:
+            with os.scandir(v_data.AUDIO_ADDRESS) as entries:
                 file_count = sum(1 for entry in entries if entry.is_file() == True)
             return file_count >= INITIAL_SCALE
         except Exception as error:
             print(f"Unable to access the target file: {error}")
     else:   return False
-    
+
+   
+# Crawler: 
     
 async def text_to_definition(session, text):
     
@@ -156,7 +163,7 @@ async def text_to_definition(session, text):
     
     text_url = f"https://www.zdic.net/hans/{text}"
         
-    
+    def_str = str()
     async with session.get(text_url) as hanzi_resp:
         if hanzi_resp.status != 200:
             print(f"Request to Crawl fails: {hanzi_resp.status}")
@@ -175,7 +182,6 @@ async def text_to_definition(session, text):
         text_def = definition_finder.find("div", class_ = next_search)
         if crawler_mode == "word":  text_def = text_def.find("div", class_ = "jnr")
         
-        def_str = str()
         if text_def:
             if crawler_mode == "single character":
                 
@@ -215,7 +221,40 @@ async def text_to_definition(session, text):
         else:   
             print("Something went wrong and I 'can't find the definition.")
             return 
-    
+        
     return def_str
+       
+# Crawler Assistent:        
+def save_definition_data(definition_map = dict()):
+    
+    try:
+        with open(v_data.DEFINITION_ADDRESS, "w", encoding = "utf-8") as f:
+            for word, definition in definition_map.items():
+                f.write(f"{word}\t{definition}\n")
+    except Exception as error:  print(f"Save_def Eror: {error}")
         
+
+# Translation Module:
+
+def translate_text(text):   
+    res = None
+    try:    res = trl.GoogleTranslator(source = "auto", target = "en").translate(text)
+    except Exception as error:  print(f"Translation Error: {error}")
+    return res
+      
         
+# SQLite datatype:
+
+def update_database():
+
+    judge_initial = not os.path.exists(v_data.WORD_BANK_ADDRESS)
+
+    agent_for_SQLite = sqlite3.connect(v_data.WORD_BANK_ADDRESS)
+    cursor = agent_for_SQLite.cursor()
+    
+    if judge_initial:
+        cursor.execute(
+    """
+        CREATE TABLE IF NOT EXIST word_bank
+    """
+        )
