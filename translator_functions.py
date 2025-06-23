@@ -83,7 +83,7 @@ def translate(image_path: str) -> str:
 # print(chinese)
 
 
-class ScreenSelector(QWidget):
+class ScreenSelector_For_Translator(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -146,27 +146,84 @@ class ScreenSelector(QWidget):
 
         self.close()
 
+
+class ScreenSelector_For_ScreenSelect(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setCursor(Qt.CrossCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+        self.origin = QPoint()
+        self.current_pos = QPoint()
+        self.selecting = False
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        # 画半透明遮罩
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 50))
+        if self.selecting:
+            # 只画矩形边框，不填充
+            pen = QPen(QColor(255, 0, 0), 4)  # DodgerBlue，线宽2
+            painter.setPen(pen)
+            rect = QRect(self.origin, self.current_pos).normalized()
+            painter.drawRect(rect)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.origin = event.pos()
+            self.current_pos = event.pos()
+            self.selecting = True
+            self.update()
+
+    def mouseMoveEvent(self, event):
+        if self.selecting:
+            self.current_pos = event.pos()
+            self.update()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.selecting:
+            self.selecting = False
+            self.update()
+
+            rect = QRect(self.origin, event.pos()).normalized()
+
+            # 隐藏窗口，避免自己遮挡截图
+            self.hide()
+
+            # 延时截图，确保窗口隐藏生效
+            QTimer.singleShot(50, lambda: self.capture_and_close(rect))
+
+    def capture_and_close(self, rect):
+        screen = QGuiApplication.screens()[0]
+        full_screenshot = screen.grabWindow(0)
+        cropped = full_screenshot.copy(rect)
+        QApplication.clipboard().setPixmap(cropped)
+
+        self.close()
+
 #使用方式如下
 
-# class MainWindow(QWidget):
-#     def __init__(self):
-#         super().__init__()
-#         self.setWindowTitle("截图测试")
-#         layout = QVBoxLayout()
-#         btn = QPushButton("开始截图")
-#         btn.clicked.connect(self.start_screenshot)
-#         layout.addWidget(btn)
-#         self.setLayout(layout)
+class MainWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("截图测试")
+        layout = QVBoxLayout()
+        btn = QPushButton("开始截图")
+        btn.clicked.connect(self.start_screenshot)
+        layout.addWidget(btn)
+        self.setLayout(layout)
 
-#     def start_screenshot(self):
-#         self.hide()
-#         self.selector = ScreenSelector()
-#         self.selector.showFullScreen()
-#         QTimer.singleShot(100, self.selector.raise_)
-#         QTimer.singleShot(100, self.selector.activateWindow)
+    def start_screenshot(self):
+        self.hide()
+        self.selector = ScreenSelector_For_Translator()   #这里换一下For什么就行
+        self.selector.showFullScreen()
+        QTimer.singleShot(100, self.selector.raise_)
+        QTimer.singleShot(100, self.selector.activateWindow)
 
-# if __name__ == '__main__':
-#     app = QApplication(sys.argv)
-#     window = MainWindow()
-#     window.show()
-#     sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
