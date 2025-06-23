@@ -1,10 +1,10 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtCore import Qt, QPoint
-from floating_window_ui import Ui_FloatingWindow
-from antonym_learning_ui import Ui_AntonymLearning
-from screen_translate_ui import Ui_ScreenTranslate
-from chat_window_ui import Ui_ChatWindow
+from UI_File.floating_window_ui import Ui_FloatingWindow      #UI_File表示从那个文件夹里import
+from UI_File.antonym_learning_ui import Ui_AntonymLearning
+from UI_File.screen_translate_ui import Ui_ScreenTranslate
+from UI_File.chat_window_ui import Ui_ChatWindow
 
 class FloatingWindow(QWidget):
     def __init__(self, parent=None):
