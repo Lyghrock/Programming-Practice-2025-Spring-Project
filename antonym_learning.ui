@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AntonymLearning</class>
+ <widget class="QWidget" name="AntonymLearning">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label_title">
+     <property name="text">
+      <string>反语学习 / 单词测试</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font-size: 20px;
+font-weight: bold;
+color: #344955;
+padding: 10px;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_image">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>200</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #F5F5F5;
+border: 1px solid #CCCCCC;
+border-radius: 5px;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="text">
+      <string>单词图片</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="btn_option1">
+       <property name="text">
+        <string>选项 1</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #F9AA33;
+color: #232F34;
+border-radius: 5px;
+padding: 10px;
+font-size: 14px;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btn_option2">
+       <property name="text">
+        <string>选项 2</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #F9AA33;
+color: #232F34;
+border-radius: 5px;
+padding: 10px;
+font-size: 14px;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="btn_option3">
+       <property name="text">
+        <string>选项 3</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #F9AA33;
+color: #232F34;
+border-radius: 5px;
+padding: 10px;
+font-size: 14px;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="btn_option4">
+       <property name="text">
+        <string>选项 4</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #F9AA33;
+color: #232F34;
+border-radius: 5px;
+padding: 10px;
+font-size: 14px;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btn_submit">
+       <property name="text">
+        <string>提交答案</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #344955;
+color: white;
+border-radius: 5px;
+padding: 10px;
+font-weight: bold;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_add_word">
+       <property name="text">
+        <string>添加到单词本</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #4A6572;
+color: white;
+border-radius: 5px;
+padding: 10px;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_back">
+       <property name="text">
+        <string>返回</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #F44336;
+color: white;
+border-radius: 5px;
+padding: 10px;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_result">
+     <property name="styleSheet">
+      <string notr="true">font-size: 16px;
+color: #344955;
+padding: 10px;
+min-height: 40px;</string>
+     </property>
+     <property name="text">
+      <string>等待答题...</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

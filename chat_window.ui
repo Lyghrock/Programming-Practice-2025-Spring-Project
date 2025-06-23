@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChatWindow</class>
+ <widget class="QWidget" name="ChatWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTextBrowser" name="text_chat">
+     <property name="styleSheet">
+      <string notr="true">background-color: #F5F5F5;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+padding: 10px;
+font-size: 14px;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="input_message">
+       <property name="styleSheet">
+        <string notr="true">border: 1px solid #CCCCCC;
+border-radius: 5px;
+padding: 8px;
+font-size: 14px;</string>
+       </property>
+       <property name="placeholderText">
+        <string>输入消息...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_send">
+       <property name="text">
+        <string>发送</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #344955;
+color: white;
+border-radius: 5px;
+padding: 8px 20px;
+font-size: 14px;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btn_back">
+     <property name="text">
+      <string>返回</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #F44336;
+color: white;
+border-radius: 5px;
+padding: 10px;
+font-size: 14px;</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FloatingWindow</class>
+ <widget class="QWidget" name="FloatingWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>60</height>
+   </rect>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: #4A6572;
+border-radius: 10px;</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QPushButton" name="btn_antonym">
+     <property name="text">
+      <string>反语学习</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #F9AA33;
+color: #232F34;
+border-radius: 5px;
+padding: 8px;
+font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btn_translate">
+     <property name="text">
+      <string>屏幕翻译</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #F9AA33;
+color: #232F34;
+border-radius: 5px;
+padding: 8px;
+font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btn_deepseek_chat">
+     <property name="text">
+      <string>DeepSeek</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #344955;
+color: white;
+border-radius: 5px;
+padding: 8px;
+font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btn_spray_chat">
+     <property name="text">
+      <string>小喷子</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #344955;
+color: white;
+border-radius: 5px;
+padding: 8px;
+font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
