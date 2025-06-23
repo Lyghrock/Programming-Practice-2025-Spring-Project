@@ -1,4 +1,5 @@
 import reverse_function as v_func
+from reverse_function import AUDIO_ADDRESS
 
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout,
@@ -22,6 +23,12 @@ class Language_Learning_Widget(QWidget):
         
         Qt.QTimer.singleShot(0,self.initialize_voice_pack)
         
+    
+    @asyncSlot
+    async def initialization(self):
+        await self.initialize_voice_pack()
+        await self.initialize_vocabulary_data()
+    
     @asyncSlot
     async def initialize_voice_pack(self):
         
@@ -52,6 +59,10 @@ class Language_Learning_Widget(QWidget):
                 all_tasks.append(simul_task(current_word,"zh"))
                 
             await asyncio.gather(*all_tasks)
+            
+    @asyncSlot
+    async def initialize_vocabulary_data():
+        pass
             
             
             

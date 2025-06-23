@@ -8,7 +8,7 @@ from pydub import AudioSegment
 
 import reverse_data_storage as v_data
 
-
+AUDIO_ADDRESS = "D:\\Desk_Pet_Data_Storage\\Voice_Bank"
 
 App_ID = "6951303"
 voice_API = "GBhFPFtbTLZbU9r8C1rY45Hc"
@@ -63,9 +63,10 @@ async def text_to_speech(seesion, token,
         async with seesion.post(Text_to_Speech_url, 
             data = parameters_for_audio, headers = head) as target_audio:
             
-            file_address = "D:\\Desk_Pet_Data_Storage\\Voice_Bank"
-            os.makedirs(file_address, exist_ok = True )
-            file_address = os.path.join(file_address , filename)
+            os.makedirs(AUDIO_ADDRESS, exist_ok = True )
+            file_address = os.path.join(AUDIO_ADDRESS , filename)
+            
+            # Store and then Reverse the audio
             
             content_type =target_audio.headers.get("Content-Type","")
             if content_type == "audio/mp3":
@@ -75,11 +76,12 @@ async def text_to_speech(seesion, token,
             else:
                 error_for_tts = await target_audio.text()
                 print(f"Something went wrong: {error_for_tts}")
+                
+    # Ensure Programme Safety!
+    
     except Exception as error:
         print(f"Storage_error: {error}")
 
-def get_initial_word_bank():
-    pass
 
 def reverse_audio(audio_path):
     audio = AudioSegment.from_mp3(audio_path)
