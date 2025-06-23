@@ -2,6 +2,10 @@ from PIL import Image
 import pytesseract
 import os
 from openai import OpenAI
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QRubberBand, QPushButton, QVBoxLayout
+from PyQt5.QtCore import Qt, QRect, QPoint, QSize, QTimer
+from PyQt5.QtGui import QGuiApplication,QPainter, QColor,QPen
 
 
 # 设置 pytesseract 使用的临时文件夹为一个干净的英文路径
@@ -69,6 +73,7 @@ def get_translation(client: OpenAI, model_name: str, text: str):
 def translate(image_path: str) -> str:  
     text = extract_text_from_image(image_path)
     chinese = get_translation(client,model_name,text)
+    os.remove(image_path)
     return chinese
 
 
@@ -76,3 +81,92 @@ def translate(image_path: str) -> str:
 # text = extract_text_from_image(image_path)
 # chinese = get_translation(client,model_name,text)
 # print(chinese)
+
+
+class ScreenSelector(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setCursor(Qt.CrossCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+        self.origin = QPoint()
+        self.current_pos = QPoint()
+        self.selecting = False
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        # 画半透明遮罩
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 50))
+        if self.selecting:
+            # 只画矩形边框，不填充
+            pen = QPen(QColor(255, 0, 0), 4)  # DodgerBlue，线宽2
+            painter.setPen(pen)
+            rect = QRect(self.origin, self.current_pos).normalized()
+            painter.drawRect(rect)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.origin = event.pos()
+            self.current_pos = event.pos()
+            self.selecting = True
+            self.update()
+
+    def mouseMoveEvent(self, event):
+        if self.selecting:
+            self.current_pos = event.pos()
+            self.update()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.selecting:
+            self.selecting = False
+            self.update()
+
+            rect = QRect(self.origin, event.pos()).normalized()
+
+            # 隐藏窗口，避免自己遮挡截图
+            self.hide()
+
+            # 延时截图，确保窗口隐藏生效
+            QTimer.singleShot(50, lambda: self.capture_and_close(rect))
+
+    def capture_and_close(self, rect):
+        screen = QGuiApplication.screens()[0]
+        full_screenshot = screen.grabWindow(0)
+        cropped = full_screenshot.copy(rect)
+
+        save_dir = r"D:\Desk_Pet_Data_Storage\Temp"
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, "screenshot.png")
+        success = cropped.save(save_path, "png")
+        #print(f"截图保存 {'成功' if success else '失败'}，路径：{save_path}")
+
+        #print(translate(save_path))
+
+        self.close()
+
+#使用方式如下
+
+# class MainWindow(QWidget):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle("截图测试")
+#         layout = QVBoxLayout()
+#         btn = QPushButton("开始截图")
+#         btn.clicked.connect(self.start_screenshot)
+#         layout.addWidget(btn)
+#         self.setLayout(layout)
+
+#     def start_screenshot(self):
+#         self.hide()
+#         self.selector = ScreenSelector()
+#         self.selector.showFullScreen()
+#         QTimer.singleShot(100, self.selector.raise_)
+#         QTimer.singleShot(100, self.selector.activateWindow)
+
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = MainWindow()
+#     window.show()
+#     sys.exit(app.exec_())
