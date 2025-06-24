@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\lenovo\gits\chat_window.ui'
+# Form implementation generated from reading ui file 'c:\Users\lenovo\gits\UI_File\chat_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -11,52 +11,61 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_ChatWindow(object):
-    def setupUi(self, ChatWindow):
-        ChatWindow.setObjectName("ChatWindow")
-        ChatWindow.resize(500, 600)
-        self.verticalLayout = QtWidgets.QVBoxLayout(ChatWindow)
+class Ui_Chat(object):
+    def setupUi(self, Chat):
+        Chat.setObjectName("Chat")
+        Chat.resize(500, 500)
+        self.verticalLayout = QtWidgets.QVBoxLayout(Chat)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.text_chat = QtWidgets.QTextBrowser(ChatWindow)
-        self.text_chat.setStyleSheet("background-color: #F5F5F5;\n"
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label = QtWidgets.QLabel(Chat)
+        self.label.setObjectName("label")
+        self.horizontalLayout_3.addWidget(self.label)
+        self.combo_chat_type = QtWidgets.QComboBox(Chat)
+        self.combo_chat_type.setObjectName("combo_chat_type")
+        self.combo_chat_type.addItem("")
+        self.combo_chat_type.addItem("")
+        self.horizontalLayout_3.addWidget(self.combo_chat_type)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.text_chat = QtWidgets.QTextBrowser(Chat)
+        self.text_chat.setStyleSheet("background-color: #FFFFFF;\n"
 "border: 1px solid #CCCCCC;\n"
 "border-radius: 5px;\n"
-"padding: 10px;\n"
-"font-size: 14px;")
+"font-size: 12px;")
         self.text_chat.setObjectName("text_chat")
         self.verticalLayout.addWidget(self.text_chat)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.input_message = QtWidgets.QLineEdit(ChatWindow)
+        self.input_message = QtWidgets.QLineEdit(Chat)
         self.input_message.setStyleSheet("border: 1px solid #CCCCCC;\n"
 "border-radius: 5px;\n"
-"padding: 8px;\n"
-"font-size: 14px;")
+"padding: 5px;")
         self.input_message.setObjectName("input_message")
         self.horizontalLayout.addWidget(self.input_message)
-        self.btn_send = QtWidgets.QPushButton(ChatWindow)
-        self.btn_send.setStyleSheet("background-color: #344955;\n"
-"color: white;\n"
-"border-radius: 5px;\n"
-"padding: 8px 20px;\n"
-"font-size: 14px;")
+        self.btn_send = QtWidgets.QPushButton(Chat)
+        self.btn_send.setMinimumSize(QtCore.QSize(60, 0))
         self.btn_send.setObjectName("btn_send")
         self.horizontalLayout.addWidget(self.btn_send)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.btn_back = QtWidgets.QPushButton(ChatWindow)
-        self.btn_back.setStyleSheet("background-color: #F44336;\n"
-"color: white;\n"
-"border-radius: 5px;\n"
-"padding: 10px;\n"
-"font-size: 14px;")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem1)
+        self.btn_back = QtWidgets.QPushButton(Chat)
         self.btn_back.setObjectName("btn_back")
-        self.verticalLayout.addWidget(self.btn_back)
+        self.horizontalLayout_2.addWidget(self.btn_back)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
 
-        self.retranslateUi(ChatWindow)
-        QtCore.QMetaObject.connectSlotsByName(ChatWindow)
+        self.retranslateUi(Chat)
+        QtCore.QMetaObject.connectSlotsByName(Chat)
 
-    def retranslateUi(self, ChatWindow):
+    def retranslateUi(self, Chat):
         _translate = QtCore.QCoreApplication.translate
-        self.input_message.setPlaceholderText(_translate("ChatWindow", "输入消息..."))
-        self.btn_send.setText(_translate("ChatWindow", "发送"))
-        self.btn_back.setText(_translate("ChatWindow", "返回"))
+        self.label.setText(_translate("Chat", "对话对象:"))
+        self.combo_chat_type.setItemText(0, _translate("Chat", "DeepSeek"))
+        self.combo_chat_type.setItemText(1, _translate("Chat", "小喷子"))
+        self.btn_send.setText(_translate("Chat", "发送"))
+        self.btn_back.setText(_translate("Chat", "返回"))
