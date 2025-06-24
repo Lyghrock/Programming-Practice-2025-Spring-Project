@@ -1,37 +1,52 @@
+import sys
 import asyncio
-import aiohttp
-import os
-from Reverse_Section.reverse_function import get_voice_token, text_to_speech
+from PyQt5.QtWidgets import QApplication
+from qasync import QEventLoop, asyncSlot
 
-async def test_text_to_speech():
-    test_text = "操你妈"
-    test_filename = "test_audio_output.mp3"
+# 引入你的模块和类
+import Reverse_Section.reverse_data_storage as v_data
+from Reverse_Section.reverse_programme import Language_Learning_Widget  # 按你实际的文件名导入
 
-    async with aiohttp.ClientSession() as session:
-        # Step 1: 获取 token
-        token = await get_voice_token(session)
-        if not token:
-            print("[ERROR] 获取 token 失败。")
-            return
-        
-        print(f"[INFO] 获取到 token：{token[:10]}...")
+# --------- Mock 你的 progress_dialog 方便调试 ----------
 
-        # Step 2: 执行 TTS 合成
-        await text_to_speech(
-            session=session,
-            token=token,
-            text=test_text,
-            lang="zh",
-            default_voice_mode=0,
-            filename=test_filename
-        )
+class MockProgressDialog:
+    def __init__(self, parent=None):
+        self.parent = parent  # 如果不需要用，可以忽略
+    
+    def show(self):
+        print("[ProgressDialog] show() called")
 
-        # Step 3: 检查文件是否生成
-        audio_path = os.path.join("D:\\Desk_Pet_Data_Storage\\Voice_Bank", test_filename)
-        if os.path.exists(audio_path):
-            print(f"[SUCCESS] 音频已成功保存：{audio_path}")
-        else:
-            print(f"[FAILURE] 音频文件未找到，请检查错误输出。")
+    def close(self):
+        print("[ProgressDialog] close() called")
+
+    def update_progress(self, percent, trait):
+        print(f"[ProgressDialog] Progress update: {trait} {percent}%")
+
+# 替换 v_data.ProgressDialog 为 MockProgressDialog
+v_data.ProgressDialog = MockProgressDialog
+
+# ---------------------------------------------------------
+
+async def test_initialization():
+    app = QApplication(sys.argv)
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
+    widget = Language_Learning_Widget()
+    
+    # 替换实例里的progress_dialog为mock
+    widget.progress_dialog = MockProgressDialog()
+
+    print("🔧 调用 initialization() 异步函数...")
+    await widget.initialization()
+    print("✅ initialization() 执行完成。")
+
+    app.quit()
 
 if __name__ == "__main__":
-    asyncio.run(test_text_to_speech())
+    import qasync
+    qasync.run(test_initialization())
+
+
+
+

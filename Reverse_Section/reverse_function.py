@@ -4,21 +4,22 @@ import requests
 import sys
 import os
 import time
-import deep_translator as trl
 import asyncio
     # 异步请求模块———用于向API并发请求，与QtConcurrent相比加快了initialize速度
 from pydub import AudioSegment
 import pydub 
 
-import sqlite3
+import sqlite3  # 用aiosqlite来代替sqlite3来实现异步写入.db数据库
+import aiosqlite as SQL
 
 import translate as ts
 from bs4 import BeautifulSoup
 
 
-import reverse_data_storage as v_data
+from . import reverse_data_storage as v_data
 
 INITIAL_SCALE = 5000
+TEST_SCALE = 20
 
 App_ID = "6951303"
 voice_API = "GBhFPFtbTLZbU9r8C1rY45Hc"
@@ -45,7 +46,7 @@ async def get_voice_token(session):
 
 async def text_to_speech(session, token,
     text, lang = "zh", default_voice_mode = 0 
-    ,filename = "Unknown_Vocabulary.mp3" ):
+    ,filename = "Unknown_Vocabulary.mp3", adjuster = None ):
 
     # Input text and get the corresponding audio:
     Text_to_Speech_url = "https://tsn.baidu.com/text2audio"
@@ -62,40 +63,44 @@ async def text_to_speech(session, token,
     # Mutable parameters:
     
         "lan": lang,    # language: "zh","en"
-        "spd": 2,       # speed:  ranging from 0 ~ 15
-        "pit": 5,       # pitch:  ranging from 0 ~ 15
-        "vol": 5,       # volume:  ranging from 0 ~ 15
+        "spd": 3,       # speed:  ranging from 0 ~ 15
+        "pit": 4,       # pitch:  ranging from 0 ~ 15
+        "vol": 7,       # volume:  ranging from 0 ~ 15
         "per": default_voice_mode       # person:  for "en" choose only 0
             #  for "zh" has 0 (standard women), 1 (standard men), 3 (Emotional), 4 (Childish)
     }
 
     special_head = v_data.REQUEST_HEADERS.copy()
     special_head.update({'Content-Type': 'application/x-www-form-urlencoded'})
+    
+    os.makedirs(v_data.AUDIO_ADDRESS, exist_ok = True )
+    file_address = os.path.join(v_data.AUDIO_ADDRESS , filename)
+    audio_content = str()
     try:
         async with session.post(Text_to_Speech_url, 
             data = parameters_for_audio, headers = special_head) as target_audio:
-            
-            os.makedirs(v_data.AUDIO_ADDRESS, exist_ok = True )
-            file_address = os.path.join(v_data.AUDIO_ADDRESS , filename)
-            
-            # Store and then Reverse the audio
             
             content_type = target_audio.headers.get("Content-Type","")
             if content_type == "audio/mp3":
                 audio_content = await target_audio.read()
             else:
                 error_for_tts = await target_audio.text()
-                with open(v_data.BLANK_AUDIO_ADDRESS,"rb") as f:
-                    audio_content = f.read()
+                try:
+                    with open(v_data.BLANK_AUDIO_ADDRESS,"rb") as f:
+                        audio_content = f.read()
+                except Exception as e:  print(f"{e}")
                 print(f"Something went wrong: {error_for_tts}")
-                
+             
+    # 用来保证再同一时刻只有一个协程在进行，否则出现协程任务池里reverse在写入前/中调用
+        async with adjuster:   
             with open(file_address, "wb") as f:  
                 f.write(audio_content)
                 f.flush()   # 保证file是正常状态
                 os.fsync(f.fileno())    
-                    
-            await check_file_exist(file_address)
+            
+            print("start_to_reverse")
             if lang == "zh":   reverse_audio(file_address)
+            print("end_reversing")
     
             return True
                 
@@ -106,35 +111,39 @@ async def text_to_speech(session, token,
         return False
 
 # TTS Assistent:
+
+async def reverse_audio(audio_path):
+    
+    def single_reverse():
+        # # 确保ffmpeg配置成功!
+        # AudioSegment.converter = pydub.utils.which("ffmpeg")
+        # AudioSegment.ffprobe = pydub.utils.which("ffprobe")
+        
+        try:
+            audio = AudioSegment.from_file(audio_path, format = "mp3")
+            reversed_audio = audio.reverse()
+            os.remove(audio_path)
+            reversed_audio.export(audio_path, format = "mp3")
+        except Exception as error:  print(f"Error occurs:{error}")
+    
+    await asyncio.to_thread(single_reverse)
+        
+        
 async def check_file_exist(file_path, timeout=5):
     def blocking_wait():
         start = time.time()
         while not os.path.exists(file_path):
             if time.time() - start > timeout:
-                raise TimeoutError(f"等待文件 {file_path} 超时")
+                raise TimeoutError(f"Time Limit Exceeded when waiting file_writing:{file_path}")
             time.sleep(0.05)
     await asyncio.to_thread(blocking_wait)
 
-def reverse_audio(audio_path):
-    
-    # # 确保ffmpeg配置成功!
-    # AudioSegment.converter = pydub.utils.which("ffmpeg")
-    # AudioSegment.ffprobe = pydub.utils.which("ffprobe")
-    
-    try:
-        audio = AudioSegment.from_file(audio_path, format = "mp3")
-        reversed_audio = audio.reverse()
-        os.remove(audio_path)
-        reversed_audio.export(audio_path, format = "mp3")
-    except Exception as error:  print(f"Error occurs:{error}")
-        
 
 
 # Programme Assistent:
-def load_word_list():
+def load_word_list(mode = "default"):
     
     tmp = list()
-    
     judge_initial = not os.path.exists(v_data.WORD_BANK_ADDRESS)
     if not judge_initial:
         
@@ -143,13 +152,13 @@ def load_word_list():
         cursor.execute("SELECT word FROM word_bank")
         tmp = cursor.fetchall()
         
-        agent_for_SQLite.commit()
-        agent_for_SQLite.close()
-        
+        agent_for_SQLite.close()       
     else:
         try:
-            with open(v_data.INITIAL_ADDRESS, "r", encoding="utf-8") as file:
-                tmp = [line.strip() for line in file.readlines()[:INITIAL_SCALE]]
+            address = v_data.INITIAL_ADDRESS if mode == "default" else v_data.TEST_ADDRESS
+            scale = INITIAL_SCALE if mode == "default" else TEST_SCALE
+            with open(address, "r", encoding="utf-8") as file:
+                tmp = [line.strip() for line in file.readlines()[:scale]]
         except Exception as e:  print(f"Error when first loading word list: {e}")
     return tmp
     
@@ -165,8 +174,6 @@ def check_voice_directory():
             print(f"Unable to access the target file: {error}")
     else:   return False
 
-def check_data_exist():    return os.path.exists(v_data.WORD_BANK_ADDRESS)
-    
    
 # Crawler: 
     
@@ -241,28 +248,42 @@ async def text_to_definition(session, text):
         
     return def_str
        
-# Crawler Assistent:        
-def save_definition_data(definition_map = dict()):
+# Crawler Assistent:   
+
+def check_data_exist():    return os.path.exists(v_data.WORD_BANK_ADDRESS)
+
+def save_loaded_data(map = dict(), address = str()):
     
+    folder = os.path.dirname(address)
+    if not os.path.exists(folder):    os.makedirs(folder)
     try:
-        with open(v_data.DEFINITION_ADDRESS, "w", encoding = "utf-8") as f:
-            for word, definition in definition_map.items():
+        with open(address, "w", encoding = "utf-8") as f:
+            for word, definition in map.items():
                 f.write(f"{word}\t{definition}\n")
-    except Exception as error:  print(f"Save_def Eror: {error}")
+    except Exception as error:  print(f"Save {address} Eror: {error}")
         
+def preload_existing_data(map = dict(), address = str()):
+    try:
+        with open(address,"r",encoding = "utf-8") as f:
+            for line in f.readlines():
+                key, value = line.split("\t")[0],line.split('\t')[1]
+                map[key] = value
+    except Exception as e:  print(f"Load {address} Error: {e}")
+
 
 # Translation Module:
+import deep_translator as trl
+TRANSLATOR = trl.GoogleTranslator(source = "zh-CN", target = "en")
+async def translate_text(text):
+    return await asyncio.to_thread(TRANSLATOR.translate, text)
 
-def translate_text(text):   
-    res = None
-    try:    res = trl.GoogleTranslator(source = "auto", target = "en").translate(text)
-    except Exception as error:  print(f"Translation Error: {error}")
-    return res
-      
         
 # SQLite datatype:
 
 def update_database(parameters_dict = dict()):
+    
+    dir_path = os.path.dirname(v_data.WORD_BANK_ADDRESS)
+    if dir_path and not os.path.exists(dir_path):    os.makedirs(dir_path)
 
     judge_initial = not os.path.exists(v_data.WORD_BANK_ADDRESS)
 
@@ -283,9 +304,7 @@ def update_database(parameters_dict = dict()):
         )
     """
         )
-    
-    else:  pass
-    
+
     for trait, inserter in parameters_dict.items():
         print(f"Trying to load {trait}.")
         cursor.executemany(
@@ -297,3 +316,17 @@ def update_database(parameters_dict = dict()):
         
     agent_for_SQLite.commit()
     agent_for_SQLite.close()
+    
+def get_data_from_database(text):
+    
+    agent_for_SQLite = sqlite3.connect(v_data.WORD_BANK_ADDRESS)
+    agent_for_SQLite.row_factory = sqlite3.Row  # 返回哈希表
+    cursor = agent_for_SQLite.cursor()
+    
+    cursor.execute("SELECT * FROM word_bank WHERE word = ?",(text,))
+    res = cursor.fetchone()
+    res = dict(res) if res else None   # 需要加入异常捕获!
+    
+    agent_for_SQLite.close()
+    
+    return res
