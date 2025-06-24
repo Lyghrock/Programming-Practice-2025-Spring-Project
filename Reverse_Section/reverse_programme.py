@@ -49,10 +49,12 @@ class Language_Learning_Widget(QWidget):
         
     # 调用百度API获得单词对应的语音文件，存入本地
         audio_map = await self.initialize_voice_pack("zh")
-    
+
     # 调用爬虫程序从汉典(http网址)中爬取definition，存入.txt
         defin_map = await self.initialize_word_property("Definition",
             v_func.text_to_definition, v_data.DEFINITION_ADDRESS, "无")
+        
+        await asyncio.sleep(2)
         
     # 调用GoogleTranslator翻译文本
         trans_map = await self.initialize_word_property("Translation",
@@ -67,7 +69,7 @@ class Language_Learning_Widget(QWidget):
             "picture" : {word : None for word in v_data.Initial_Word_list}
         }
         
-        try:    v_func.update_database(parameters_dict = parameters_for_SQLite)
+        try:    await v_func.update_database(parameters_dict = parameters_for_SQLite)
         except Exception as error:  print(f"Error occurs when storing .db: {error}")
         
         self.set_all_buttons_enabled(True)
@@ -133,7 +135,7 @@ class Language_Learning_Widget(QWidget):
                 current_batch = v_data.Initial_Word_list[
                     i * SIMUL_BATCH_SIZE : (i + 1) * SIMUL_BATCH_SIZE]
                 tasks = [simul_task(word , language) for word in current_batch]
-                await asyncio.gather(*tasks)
+                await asyncio.gather(*tasks, return_exceptions = True)
                 await asyncio.sleep(INTERVAL_BETWEEN_BATCHES)  # 控制节奏，防止限速
         
         return audio_address_map
@@ -166,7 +168,7 @@ class Language_Learning_Widget(QWidget):
                         result_map[word] = property if property else blank_default
                     except Exception as error:
                         print(f"Text_to_{property_name} Error: {word} has {error}")
-                        result_map[word] = "N/A"
+                        result_map[word] = blank_default
                     finally:
                         progress_keeper["done"] += 1
                         QTimer.singleShot(0, lambda count = progress_keeper['done'] : 
@@ -175,7 +177,7 @@ class Language_Learning_Widget(QWidget):
 
             # 无明显限速限制，于是取all_tasks即可！
             all_tasks = [simul_task(word) for word in v_data.Initial_Word_list]
-            await asyncio.gather(*all_tasks)
+            await asyncio.gather(*all_tasks, return_exceptions = True)
 
             v_func.save_loaded_data(result_map, save_address)
 

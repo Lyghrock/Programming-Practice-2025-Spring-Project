@@ -99,7 +99,7 @@ async def text_to_speech(session, token,
                 os.fsync(f.fileno())    
             
             print("start_to_reverse")
-            if lang == "zh":   reverse_audio(file_address)
+            if lang == "zh":   await reverse_audio(file_address)
             print("end_reversing")
     
             return True
@@ -162,17 +162,17 @@ def load_word_list(mode = "default"):
         except Exception as e:  print(f"Error when first loading word list: {e}")
     return tmp
     
-def check_voice_directory():
+# def check_voice_directory():
     
-    if os.path.exists(v_data.AUDIO_ADDRESS) and os.path.isdir(v_data.AUDIO_ADDRESS):
-        # check if the corresponding folder exists
-        try:
-            with os.scandir(v_data.AUDIO_ADDRESS) as entries:
-                file_count = sum(1 for entry in entries if entry.is_file() == True)
-            return file_count >= INITIAL_SCALE
-        except Exception as error:
-            print(f"Unable to access the target file: {error}")
-    else:   return False
+#     if os.path.exists(v_data.AUDIO_ADDRESS) and os.path.isdir(v_data.AUDIO_ADDRESS):
+#         # check if the corresponding folder exists
+#         try:
+#             with os.scandir(v_data.AUDIO_ADDRESS) as entries:
+#                 file_count = sum(1 for entry in entries if entry.is_file() == True)
+#             return file_count >= INITIAL_SCALE
+#         except Exception as error:
+#             print(f"Unable to access the target file: {error}")
+#     else:   return False
 
    
 # Crawler: 
@@ -280,53 +280,54 @@ async def translate_text(text):
         
 # SQLite datatype:
 
-def update_database(parameters_dict = dict()):
+async def update_database(parameters_dict = dict()):
     
     dir_path = os.path.dirname(v_data.WORD_BANK_ADDRESS)
     if dir_path and not os.path.exists(dir_path):    os.makedirs(dir_path)
 
     judge_initial = not os.path.exists(v_data.WORD_BANK_ADDRESS)
-
-    agent_for_SQLite = sqlite3.connect(v_data.WORD_BANK_ADDRESS)
-    cursor = agent_for_SQLite.cursor()
     
-    if judge_initial:
-        cursor.execute(
-    """
-        CREATE TABLE IF NOT EXISTS word_bank (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            word TEXT NOT NULL UNIQUE,
-            translation TEXT,
-            definition TEXT,
-            audio TEXT,
-            picture TEXT,
-            enable_english_mark INTEGER
-        )
-    """
-        )
-
-    for trait, inserter in parameters_dict.items():
-        print(f"Trying to load {trait}.")
-        cursor.executemany(
-    f'''
-        INSERT INTO word_bank (word, {trait})
-        VALUES (?, ?)
-        ON CONFLICT(word) DO UPDATE SET {trait} = excluded.{trait}
-    ''', [(key, inserter[key]) for key in inserter.keys()])
+    SQLite_lock = asyncio.Lock()
+    async with SQLite_lock:
         
-    agent_for_SQLite.commit()
-    agent_for_SQLite.close()
+        async with SQL.connect(v_data.WORD_BANK_ADDRESS) as agent:
     
-def get_data_from_database(text):
+            if judge_initial:
+                await agent.execute(
+                """
+                    CREATE TABLE IF NOT EXISTS word_bank (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        word TEXT NOT NULL UNIQUE,
+                        translation TEXT,
+                        definition TEXT,
+                        audio TEXT,
+                        picture TEXT,
+                        enable_english_mark INTEGER
+                    )
+                """    )
+                cursor = await agent.cursor()
+
+            for trait, inserter in parameters_dict.items():
+                
+                current_data = [(key, inserter[key]) for key in inserter.keys()]
+                print(f"Trying to load {trait}.")
+                await cursor.executemany(
+                f'''
+                    INSERT INTO word_bank (word, {trait})
+                    VALUES (?, ?)
+                    ON CONFLICT(word) DO UPDATE SET {trait} = excluded.{trait}
+                ''', current_data)
+                
+            await agent.commit()
     
-    agent_for_SQLite = sqlite3.connect(v_data.WORD_BANK_ADDRESS)
-    agent_for_SQLite.row_factory = sqlite3.Row  # 返回哈希表
-    cursor = agent_for_SQLite.cursor()
+async def get_data_from_database(text):
     
-    cursor.execute("SELECT * FROM word_bank WHERE word = ?",(text,))
-    res = cursor.fetchone()
-    res = dict(res) if res else None   # 需要加入异常捕获!
-    
-    agent_for_SQLite.close()
-    
-    return res
+    async with SQL.connect(v_data.WORD_BANK_ADDRESS) as agent:
+        agent.row_factory = sqlite3.Row  # 返回哈希表
+        cursor = await agent.execute("SELECT * FROM word_bank WHERE word = ?",(text,))
+        
+        res = await cursor.fetchone()
+        
+        await cursor.close()
+        
+        return dict(res) if res else None
