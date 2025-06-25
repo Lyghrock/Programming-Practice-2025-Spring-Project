@@ -18,6 +18,7 @@ from PyQt5.uic import loadUi
 import aiohttp
 import asyncio  
 from typing import Callable, Optional
+from UI_File.Reverse_Widget.Language_Learning_Widget import Ui_Language_Learning_Widget
 
 from qasync import QEventLoop, asyncSlot
 
@@ -27,11 +28,12 @@ SIMUL_BOUND_DEFINITION = 8
 SIMUL_BATCH_SIZE = 30  
 INTERVAL_BETWEEN_BATCHES = 0.6 
 
-class Language_Learning_Widget(QWidget):
+class Language_Learning_Widget(QWidget,Ui_Language_Learning_Widget):
     
     def __init__(self, parent = None, flags = Qt.WindowFlags()):
-        super().__init__(parent)
-        # loadUi("",self)     # 接入设计好的ui文件
+        super().__init__()
+        self.setupUi(self)
+        self.float_pet = parent
         
         # 维护一个计数进度条类，动态更新下载进度————（控件由loadUi实现）
         self.progress_dialog = v_data.ProgressDialog(parent = self)
@@ -69,7 +71,8 @@ class Language_Learning_Widget(QWidget):
             "picture" : {word : None for word in v_data.Initial_Word_list}
         }
         
-        try:    await v_func.update_database(parameters_dict = parameters_for_SQLite)
+        try:    await v_func.update_database( address = v_data.WORD_BANK_ADDRESS, 
+                    parameters_dict = parameters_for_SQLite, type_name = "word_bank")
         except Exception as error:  print(f"Error occurs when storing .db: {error}")
         
         self.set_all_buttons_enabled(True)
@@ -83,7 +86,7 @@ class Language_Learning_Widget(QWidget):
         progress_keeper = {"done" : 0 , "total" : len(v_data.Initial_Word_list)}
         
         if v_func.check_data_exist():
-            print("Database is already downloaded!")
+            print("Audio database is already downloaded!")
             
             for word in v_data.Initial_Word_list:
                 audio_address_map[word] = f"{word}_{language}.mp3"
@@ -142,7 +145,7 @@ class Language_Learning_Widget(QWidget):
     
     # Definition和Translation的获取方式尽管在路径上存在差异（爬虫/隐式API）
         # 他们的时间表现形式大致相同，于是合成为一个函数
-    
+        
     @asyncSlot()
     async def initialize_word_property(self, property_name = str(),
         fetch_function : Optional[Callable] = None, save_address = str(), blank_default = str()):
@@ -152,6 +155,7 @@ class Language_Learning_Widget(QWidget):
 
         # 预加载已有数据，根据.db检测！
         if v_func.check_data_exist():
+            print("Property database is already downloaded!")
             v_func.preload_existing_data(result_map, save_address)
             return result_map
 
@@ -189,9 +193,9 @@ class Language_Learning_Widget(QWidget):
         if self.progress_dialog:
             self.progress_dialog.update_progress(percent = percentage, trait = ongoing)
         
-    def set_all_buttons_enabled(self, enabled: bool):
-        
-        for btn in self.findChildren(QPushButton):
-            btn.setEnabled(enabled)
+    def set_all_buttons_enabled(self, enabled: bool):        
+        for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
+            
+
             
                     
