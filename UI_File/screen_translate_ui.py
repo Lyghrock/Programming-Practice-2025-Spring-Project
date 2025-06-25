@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\lenovo\gits\screen_translate.ui'
+# Form implementation generated from reading ui file 'c:\Users\lenovo\gits\UI_File\screen_translate.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -11,63 +11,42 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_ScreenTranslate(object):
-    def setupUi(self, ScreenTranslate):
-        ScreenTranslate.setObjectName("ScreenTranslate")
-        ScreenTranslate.resize(600, 400)
-        self.verticalLayout = QtWidgets.QVBoxLayout(ScreenTranslate)
+class Ui_Translation(object):
+    def setupUi(self, Translation):
+        Translation.setObjectName("Translation")
+        Translation.resize(500, 300)
+        self.verticalLayout = QtWidgets.QVBoxLayout(Translation)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.label_title = QtWidgets.QLabel(ScreenTranslate)
-        self.label_title.setStyleSheet("font-size: 20px;\n"
-"font-weight: bold;\n"
-"color: #344955;\n"
+        self.label = QtWidgets.QLabel(Translation)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.label.setObjectName("label")
+        self.verticalLayout.addWidget(self.label)
+        self.btn_select_area = QtWidgets.QPushButton(Translation)
+        self.btn_select_area.setMinimumSize(QtCore.QSize(0, 40))
+        self.btn_select_area.setObjectName("btn_select_area")
+        self.verticalLayout.addWidget(self.btn_select_area)
+        self.text_result = QtWidgets.QTextEdit(Translation)
+        self.text_result.setStyleSheet("background-color: #F8F8F8;\n"
+"border: 1px solid #CCCCCC;\n"
+"border-radius: 5px;\n"
 "padding: 10px;")
-        self.label_title.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_title.setObjectName("label_title")
-        self.verticalLayout.addWidget(self.label_title)
+        self.text_result.setObjectName("text_result")
+        self.verticalLayout.addWidget(self.text_result)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.btn_select_area = QtWidgets.QPushButton(ScreenTranslate)
-        self.btn_select_area.setStyleSheet("background-color: #F9AA33;\n"
-"color: #232F34;\n"
-"border-radius: 5px;\n"
-"padding: 10px;\n"
-"font-size: 14px;")
-        self.btn_select_area.setObjectName("btn_select_area")
-        self.horizontalLayout.addWidget(self.btn_select_area)
-        self.btn_translate = QtWidgets.QPushButton(ScreenTranslate)
-        self.btn_translate.setStyleSheet("background-color: #344955;\n"
-"color: white;\n"
-"border-radius: 5px;\n"
-"padding: 10px;\n"
-"font-size: 14px;")
-        self.btn_translate.setObjectName("btn_translate")
-        self.horizontalLayout.addWidget(self.btn_translate)
-        self.btn_back = QtWidgets.QPushButton(ScreenTranslate)
-        self.btn_back.setStyleSheet("background-color: #F44336;\n"
-"color: white;\n"
-"border-radius: 5px;\n"
-"padding: 10px;\n"
-"font-size: 14px;")
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.btn_back = QtWidgets.QPushButton(Translation)
         self.btn_back.setObjectName("btn_back")
         self.horizontalLayout.addWidget(self.btn_back)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.text_result = QtWidgets.QTextEdit(ScreenTranslate)
-        self.text_result.setStyleSheet("background-color: #F5F5F5;\n"
-"border: 1px solid #CCCCCC;\n"
-"border-radius: 5px;\n"
-"padding: 10px;\n"
-"font-size: 14px;")
-        self.text_result.setObjectName("text_result")
-        self.verticalLayout.addWidget(self.text_result)
 
-        self.retranslateUi(ScreenTranslate)
-        QtCore.QMetaObject.connectSlotsByName(ScreenTranslate)
+        self.retranslateUi(Translation)
+        QtCore.QMetaObject.connectSlotsByName(Translation)
 
-    def retranslateUi(self, ScreenTranslate):
+    def retranslateUi(self, Translation):
         _translate = QtCore.QCoreApplication.translate
-        self.label_title.setText(_translate("ScreenTranslate", "屏幕翻译"))
-        self.btn_select_area.setText(_translate("ScreenTranslate", "选择区域"))
-        self.btn_translate.setText(_translate("ScreenTranslate", "翻译"))
-        self.btn_back.setText(_translate("ScreenTranslate", "返回"))
-        self.text_result.setPlaceholderText(_translate("ScreenTranslate", "翻译结果将显示在这里..."))
+        self.label.setText(_translate("Translation", "屏幕翻译"))
+        self.btn_select_area.setText(_translate("Translation", "选择翻译区域"))
+        self.btn_back.setText(_translate("Translation", "返回"))

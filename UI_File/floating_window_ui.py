@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\lenovo\gits\floating_window.ui'
+# Form implementation generated from reading ui file 'c:\Users\lenovo\gits\UI_File\floating_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -11,53 +11,74 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_FloatingWindow(object):
-    def setupUi(self, FloatingWindow):
-        FloatingWindow.setObjectName("FloatingWindow")
-        FloatingWindow.resize(300, 60)
-        FloatingWindow.setStyleSheet("background-color: #4A6572;\n"
-"border-radius: 10px;")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(FloatingWindow)
+class Ui_FloatPet(object):
+    def setupUi(self, FloatPet):
+        FloatPet.setObjectName("FloatPet")
+        FloatPet.resize(250, 80)
+        FloatPet.setStyleSheet("background-color: transparent;")
+        self.verticalLayout = QtWidgets.QVBoxLayout(FloatPet)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.drag_area = QtWidgets.QLabel(FloatPet)
+        self.drag_area.setMinimumSize(QtCore.QSize(0, 20))
+        self.drag_area.setMaximumSize(QtCore.QSize(16777215, 20))
+        self.drag_area.setStyleSheet("color: white;\n"
+"font-size: 9pt;\n"
+"padding-left: 5px;")
+        self.drag_area.setObjectName("drag_area")
+        self.verticalLayout.addWidget(self.drag_area)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.btn_antonym = QtWidgets.QPushButton(FloatingWindow)
-        self.btn_antonym.setStyleSheet("background-color: #F9AA33;\n"
-"color: #232F34;\n"
-"border-radius: 5px;\n"
-"padding: 8px;\n"
-"font-weight: bold;")
-        self.btn_antonym.setObjectName("btn_antonym")
-        self.horizontalLayout.addWidget(self.btn_antonym)
-        self.btn_translate = QtWidgets.QPushButton(FloatingWindow)
-        self.btn_translate.setStyleSheet("background-color: #F9AA33;\n"
-"color: #232F34;\n"
-"border-radius: 5px;\n"
-"padding: 8px;\n"
-"font-weight: bold;")
-        self.btn_translate.setObjectName("btn_translate")
-        self.horizontalLayout.addWidget(self.btn_translate)
-        self.btn_deepseek_chat = QtWidgets.QPushButton(FloatingWindow)
-        self.btn_deepseek_chat.setStyleSheet("background-color: #344955;\n"
-"color: white;\n"
-"border-radius: 5px;\n"
-"padding: 8px;\n"
-"font-weight: bold;")
-        self.btn_deepseek_chat.setObjectName("btn_deepseek_chat")
-        self.horizontalLayout.addWidget(self.btn_deepseek_chat)
-        self.btn_spray_chat = QtWidgets.QPushButton(FloatingWindow)
-        self.btn_spray_chat.setStyleSheet("background-color: #344955;\n"
-"color: white;\n"
-"border-radius: 5px;\n"
-"padding: 8px;\n"
-"font-weight: bold;")
-        self.btn_spray_chat.setObjectName("btn_spray_chat")
-        self.horizontalLayout.addWidget(self.btn_spray_chat)
+        self.btn_study = QtWidgets.QPushButton(FloatPet)
+        self.btn_study.setMinimumSize(QtCore.QSize(70, 40))
+        self.btn_study.setStyleSheet("QPushButton {\n"
+"    background-color: #FFD700;\n"
+"    border: 1px solid #FFA500;\n"
+"    border-radius: 5px;\n"
+"    padding: 5px;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: #FFEC8B;\n"
+"}")
+        self.btn_study.setObjectName("btn_study")
+        self.horizontalLayout.addWidget(self.btn_study)
+        self.btn_translation = QtWidgets.QPushButton(FloatPet)
+        self.btn_translation.setMinimumSize(QtCore.QSize(70, 40))
+        self.btn_translation.setStyleSheet("QPushButton {\n"
+"    background-color: #87CEFA;\n"
+"    border: 1px solid #1E90FF;\n"
+"    border-radius: 5px;\n"
+"    padding: 5px;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: #B0E2FF;\n"
+"}")
+        self.btn_translation.setObjectName("btn_translation")
+        self.horizontalLayout.addWidget(self.btn_translation)
+        self.btn_chat = QtWidgets.QPushButton(FloatPet)
+        self.btn_chat.setMinimumSize(QtCore.QSize(70, 40))
+        self.btn_chat.setStyleSheet("QPushButton {\n"
+"    background-color: #98FB98;\n"
+"    border: 1px solid #32CD32;\n"
+"    border-radius: 5px;\n"
+"    padding: 5px;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: #C1FFC1;\n"
+"}")
+        self.btn_chat.setObjectName("btn_chat")
+        self.horizontalLayout.addWidget(self.btn_chat)
+        self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.retranslateUi(FloatingWindow)
-        QtCore.QMetaObject.connectSlotsByName(FloatingWindow)
+        self.retranslateUi(FloatPet)
+        QtCore.QMetaObject.connectSlotsByName(FloatPet)
 
-    def retranslateUi(self, FloatingWindow):
+    def retranslateUi(self, FloatPet):
         _translate = QtCore.QCoreApplication.translate
-        self.btn_antonym.setText(_translate("FloatingWindow", "反语学习"))
-        self.btn_translate.setText(_translate("FloatingWindow", "屏幕翻译"))
-        self.btn_deepseek_chat.setText(_translate("FloatingWindow", "DeepSeek"))
-        self.btn_spray_chat.setText(_translate("FloatingWindow", "小喷子"))
+        self.drag_area.setText(_translate("FloatPet", " 桌面助手 (拖动此处移动)"))
+        self.btn_study.setText(_translate("FloatPet", "学习中心"))
+        self.btn_translation.setText(_translate("FloatPet", "屏幕翻译"))
+        self.btn_chat.setText(_translate("FloatPet", "智能对话"))
