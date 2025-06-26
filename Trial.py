@@ -1,9 +1,10 @@
 # import asyncio
 # from Reverse_Section.reverse_function import get_data_from_database
+# from Reverse_Section.reverse_data_storage import WORD_BANK_ADDRESS
 
 # async def test_get_data():
 #     test_word = "周成豫"# 你知道在数据库中存在的一个单词
-#     result = await get_data_from_database(test_word)
+#     result = await get_data_from_database(test_word, address = WORD_BANK_ADDRESS)
 
 #     if result:
 #         print(f"✅ 查询成功：{test_word}")

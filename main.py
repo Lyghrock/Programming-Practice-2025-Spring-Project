@@ -1,12 +1,16 @@
 import sys
+from qasync import QEventLoop
+import asyncio
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtCore import Qt, QPoint,QTimer
 from PyQt5.QtGui import QPainter, QColor, QPen
 from UI_File.floating_window_ui import Ui_FloatPet
-from UI_File.antonym_learning_ui import Ui_Study
 from UI_File.screen_translate_ui import Ui_Translation
 from UI_File.chat_window_ui import Ui_Chat
 from translator_functions import translate,ScreenSelector_For_ScreenSelect,ScreenSelector_For_Translator
+
+from Reverse_Section.reverse_programme import Language_Learning_Widget
+import Reverse_Section.reverse_data_storage as v_data
 
 class FloatPet(QWidget, Ui_FloatPet):
     def __init__(self):
@@ -84,7 +88,7 @@ class FloatPet(QWidget, Ui_FloatPet):
     def show_study(self):
         self.hide()
         if not self.study_window:
-            self.study_window = StudyWindow(self)
+            self.study_window = Language_Learning_Widget(parent = self)
         self.study_window.show()
     
     def show_translation(self):
@@ -102,7 +106,7 @@ class FloatPet(QWidget, Ui_FloatPet):
     def show_float_pet(self):
         self.show()
 
-class StudyWindow(QWidget, Ui_Study):
+class StudyWindow(Language_Learning_Widget):
     def __init__(self, float_pet):
         super().__init__()
         self.setupUi(self)
@@ -246,6 +250,13 @@ class ChatWindow(QWidget, Ui_Chat):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+    # 使用 qasync 的事件循环
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
     float_pet = FloatPet()
     float_pet.show()
-    sys.exit(app.exec_())
+
+    with loop:
+        loop.run_forever()
