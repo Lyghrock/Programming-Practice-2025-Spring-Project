@@ -14,6 +14,7 @@ import aiosqlite as SQL
 
 import translate as ts
 from bs4 import BeautifulSoup
+import deep_translator as trl
 
 
 from . import reverse_data_storage as v_data
@@ -272,7 +273,7 @@ def preload_existing_data(map = dict(), address = str()):
 
 
 # Translation Module:
-import deep_translator as trl
+
 TRANSLATOR = trl.GoogleTranslator(source = "zh-CN", target = "en")
 async def translate_text(text):
     return await asyncio.to_thread(TRANSLATOR.translate, text)
