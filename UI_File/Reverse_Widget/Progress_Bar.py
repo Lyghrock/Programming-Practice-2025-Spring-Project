@@ -11,24 +11,25 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Porgress_Keeper(object):
-    def setupUi(self, Porgress_Keeper):
-        Porgress_Keeper.setObjectName("Porgress_Keeper")
-        Porgress_Keeper.resize(350, 100)
-        Porgress_Keeper.setMinimumSize(QtCore.QSize(350, 100))
-        Porgress_Keeper.setMaximumSize(QtCore.QSize(350, 100))
-        self.progress_keeper = QtWidgets.QProgressBar(Porgress_Keeper)
+class Ui_Progress_Keeper(object):
+    def setupUi(self, Progress_Keeper):
+        Progress_Keeper.setObjectName("Progress_Keeper")
+        Progress_Keeper.resize(350, 100)
+        Progress_Keeper.setMinimumSize(QtCore.QSize(350, 100))
+        Progress_Keeper.setMaximumSize(QtCore.QSize(350, 100))
+        self.progress_keeper = QtWidgets.QProgressBar(Progress_Keeper)
         self.progress_keeper.setGeometry(QtCore.QRect(70, 50, 221, 31))
-        self.progress_keeper.setProperty("value", 24)
+        self.progress_keeper.setProperty("value", 0)
+        self.progress_keeper.setInvertedAppearance(False)
         self.progress_keeper.setObjectName("progress_keeper")
-        self.Annotations = QtWidgets.QLabel(Porgress_Keeper)
+        self.Annotations = QtWidgets.QLabel(Progress_Keeper)
         self.Annotations.setGeometry(QtCore.QRect(140, 20, 81, 21))
         self.Annotations.setObjectName("Annotations")
 
-        self.retranslateUi(Porgress_Keeper)
-        QtCore.QMetaObject.connectSlotsByName(Porgress_Keeper)
+        self.retranslateUi(Progress_Keeper)
+        QtCore.QMetaObject.connectSlotsByName(Progress_Keeper)
 
-    def retranslateUi(self, Porgress_Keeper):
+    def retranslateUi(self, Progress_Keeper):
         _translate = QtCore.QCoreApplication.translate
-        Porgress_Keeper.setWindowTitle(_translate("Porgress_Keeper", "Porgress_Keeper"))
-        self.Annotations.setText(_translate("Porgress_Keeper", "Progress"))
+        Progress_Keeper.setWindowTitle(_translate("Progress_Keeper", "Porgress_Keeper"))
+        self.Annotations.setText(_translate("Progress_Keeper", "Progress"))

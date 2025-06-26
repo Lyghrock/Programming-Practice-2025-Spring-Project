@@ -1,9 +1,10 @@
 AUDIO_ADDRESS = r"D:\Desk_Pet_Data_Storage\Voice_Bank"
 DEFINITION_ADDRESS = r"D:\Desk_Pet_Data_Storage\Text_Data\definition.txt"
 TRANSLATION_ADDRESS = r"D:\Desk_Pet_Data_Storage\Text_Data\translation.txt"
+WORD_BANK_ADDRESS = r"D:\Desk_Pet_Data_Storage\Word_Data\word_bank.db"
+
 INITIAL_ADDRESS = r"D:\Python_Audio_Processing\Word_bank\Initialized_Word_Bank.txt"
 TEST_ADDRESS = r"D:\Python_Audio_Processing\Word_bank\Test_Word_Bank.txt"
-WORD_BANK_ADDRESS = r"D:\Desk_Pet_Data_Storage\Word_Data\word_bank.db"
 BLANK_AUDIO_ADDRESS = r"D:\Python_Audio_Processing\default_audio.mp3"
 
 Initial_Word_list = list()
@@ -20,25 +21,14 @@ from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QProgressBar
     )
 from PyQt5.uic import loadUi
+from UI_File.Reverse_Widget.Progress_Bar import Ui_Progress_Keeper
 
-class ProgressDialog(QDialog):
-    def __init__(self, title="加载中...", parent=None):
+class ProgressDialog(QDialog, Ui_Progress_Keeper):
+    def __init__(self, title = "Loading Initialization Data", parent = None):
         super().__init__(parent)
         
-        # loadUi("", self)
-            # If possible 画一个_qyr
+        self.setupUi(self)
         self.setModal(True)
-        
-        self.layout = QVBoxLayout()
-        self.label = QLabel("Wait for Initialization......")
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 100)
-
-        self.layout.addWidget(self.label)
-        self.layout.addWidget(self.progress_bar)
-        self.setLayout(self.layout)
-
-        self.resize(300, 100)
 
     def update_progress(self, percent,trait):
         self.progress_bar.setValue(percent)

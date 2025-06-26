@@ -116,6 +116,19 @@
     <string>Add_to_brochure</string>
    </property>
   </widget>
+  <widget class="QProgressBar" name="Test_Progress">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>20</y>
+     <width>171</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>0</number>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

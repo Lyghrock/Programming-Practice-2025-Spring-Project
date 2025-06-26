@@ -38,6 +38,10 @@ class Ui_Test_Window(object):
         self.Add_button = QtWidgets.QPushButton(Test_Window)
         self.Add_button.setGeometry(QtCore.QRect(450, 70, 131, 61))
         self.Add_button.setObjectName("Add_button")
+        self.Test_Progress = QtWidgets.QProgressBar(Test_Window)
+        self.Test_Progress.setGeometry(QtCore.QRect(370, 20, 171, 31))
+        self.Test_Progress.setProperty("value", 0)
+        self.Test_Progress.setObjectName("Test_Progress")
 
         self.retranslateUi(Test_Window)
         QtCore.QMetaObject.connectSlotsByName(Test_Window)

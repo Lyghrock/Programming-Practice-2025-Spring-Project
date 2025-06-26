@@ -11,28 +11,28 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Language_Learning_Widget(object):
-    def setupUi(self, Language_Learning_Widget):
-        Language_Learning_Widget.setObjectName("Language_Learning_Widget")
-        Language_Learning_Widget.resize(750, 500)
-        Language_Learning_Widget.setMinimumSize(QtCore.QSize(750, 500))
-        Language_Learning_Widget.setMaximumSize(QtCore.QSize(900, 500))
-        self.Test_button = QtWidgets.QPushButton(Language_Learning_Widget)
+class Ui_Main_Window(object):
+    def setupUi(self, Main_Window):
+        Main_Window.setObjectName("Main_Window")
+        Main_Window.resize(750, 500)
+        Main_Window.setMinimumSize(QtCore.QSize(750, 500))
+        Main_Window.setMaximumSize(QtCore.QSize(900, 500))
+        self.Test_button = QtWidgets.QPushButton(Main_Window)
         self.Test_button.setGeometry(QtCore.QRect(360, 120, 351, 101))
         self.Test_button.setObjectName("Test_button")
-        self.Search_button = QtWidgets.QPushButton(Language_Learning_Widget)
+        self.Search_button = QtWidgets.QPushButton(Main_Window)
         self.Search_button.setGeometry(QtCore.QRect(360, 240, 351, 101))
         self.Search_button.setObjectName("Search_button")
-        self.Brochure_button = QtWidgets.QPushButton(Language_Learning_Widget)
+        self.Brochure_button = QtWidgets.QPushButton(Main_Window)
         self.Brochure_button.setGeometry(QtCore.QRect(360, 360, 351, 101))
         self.Brochure_button.setObjectName("Brochure_button")
-        self.Exit_button = QtWidgets.QPushButton(Language_Learning_Widget)
+        self.Exit_button = QtWidgets.QPushButton(Main_Window)
         self.Exit_button.setGeometry(QtCore.QRect(50, 400, 191, 71))
         self.Exit_button.setObjectName("Exit_button")
-        self.Mode_button = QtWidgets.QPushButton(Language_Learning_Widget)
+        self.Mode_button = QtWidgets.QPushButton(Main_Window)
         self.Mode_button.setGeometry(QtCore.QRect(550, 20, 151, 71))
         self.Mode_button.setObjectName("Mode_button")
-        self.Title = QtWidgets.QLabel(Language_Learning_Widget)
+        self.Title = QtWidgets.QLabel(Main_Window)
         self.Title.setGeometry(QtCore.QRect(80, 90, 221, 271))
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
@@ -42,18 +42,18 @@ class Ui_Language_Learning_Widget(object):
         self.Title.setMouseTracking(False)
         self.Title.setObjectName("Title")
 
-        self.retranslateUi(Language_Learning_Widget)
-        QtCore.QMetaObject.connectSlotsByName(Language_Learning_Widget)
+        self.retranslateUi(Main_Window)
+        QtCore.QMetaObject.connectSlotsByName(Main_Window)
 
-    def retranslateUi(self, Language_Learning_Widget):
+    def retranslateUi(self, Main_Window):
         _translate = QtCore.QCoreApplication.translate
-        Language_Learning_Widget.setWindowTitle(_translate("Language_Learning_Widget", "Main_Window"))
-        self.Test_button.setText(_translate("Language_Learning_Widget", "Test"))
-        self.Search_button.setText(_translate("Language_Learning_Widget", "Search"))
-        self.Brochure_button.setText(_translate("Language_Learning_Widget", "My_Word_Brichure"))
-        self.Exit_button.setText(_translate("Language_Learning_Widget", "Exit"))
-        self.Mode_button.setText(_translate("Language_Learning_Widget", "Mode_Select"))
-        self.Title.setText(_translate("Language_Learning_Widget", "Language\n"
+        Main_Window.setWindowTitle(_translate("Main_Window", "Main_Window"))
+        self.Test_button.setText(_translate("Main_Window", "Test"))
+        self.Search_button.setText(_translate("Main_Window", "Search"))
+        self.Brochure_button.setText(_translate("Main_Window", "My_Word_Brichure"))
+        self.Exit_button.setText(_translate("Main_Window", "Exit"))
+        self.Mode_button.setText(_translate("Main_Window", "Mode_Select"))
+        self.Title.setText(_translate("Main_Window", "Language\n"
 "\n"
 " Learning\n"
 "\n"

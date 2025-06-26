@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Porgress_Keeper</class>
- <widget class="QWidget" name="Porgress_Keeper">
+ <class>Progress_Keeper</class>
+ <widget class="QWidget" name="Progress_Keeper">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Porgress_Keeper</string>
+   <string>Progress_Keeper</string>
   </property>
   <widget class="QProgressBar" name="progress_keeper">
    <property name="geometry">
@@ -35,7 +35,10 @@
     </rect>
    </property>
    <property name="value">
-    <number>24</number>
+    <number>0</number>
+   </property>
+   <property name="invertedAppearance">
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QLabel" name="Annotations">

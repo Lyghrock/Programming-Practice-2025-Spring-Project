@@ -340,4 +340,9 @@ async def get_data_from_database(text, address = str(), type_name = str()):
         
         return dict(res) if res else None
     
+
+    
+def initialize_data(mode = None):
+    pass
+
     

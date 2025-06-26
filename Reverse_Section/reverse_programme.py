@@ -8,7 +8,8 @@ import math
 
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout,
-    QPushButton, QTextEdit, QLabel
+    QPushButton, QTextEdit, QLabel, 
+    QMessageBox, QInputDialog
 )
 from PyQt5.QtCore import (
     QTimer, Qt
@@ -18,7 +19,13 @@ from PyQt5.uic import loadUi
 import aiohttp
 import asyncio  
 from typing import Callable, Optional
-from UI_File.Reverse_Widget.Language_Learning_Widget import Ui_Language_Learning_Widget
+from UI_File.Reverse_Widget.Language_Learning_Widget import Ui_Main_Window
+from UI_File.Reverse_Widget.Test_Widget import Ui_Test_Window
+from UI_File.Reverse_Widget.Search_Widget import Ui_Word_Search
+from UI_File.Reverse_Widget.Finish_Test_Widget import Ui_Finish_Test
+from UI_File.Reverse_Widget.Word_Bank_Widget import Ui_My_Word_Brochure
+
+
 
 from qasync import QEventLoop, asyncSlot
 
@@ -28,12 +35,12 @@ SIMUL_BOUND_DEFINITION = 8
 SIMUL_BATCH_SIZE = 30  
 INTERVAL_BETWEEN_BATCHES = 0.6 
 
-class Language_Learning_Widget(QWidget,Ui_Language_Learning_Widget):
+class Language_Learning_Widget(QWidget,Ui_Main_Window):
     
     def __init__(self, parent = None, flags = Qt.WindowFlags()):
         super().__init__()
         self.setupUi(self)
-        self.float_pet = parent
+        self.Upper_parent = parent
         
         # 维护一个计数进度条类，动态更新下载进度————（控件由loadUi实现）
         self.progress_dialog = v_data.ProgressDialog(parent = self)
@@ -56,7 +63,7 @@ class Language_Learning_Widget(QWidget,Ui_Language_Learning_Widget):
         defin_map = await self.initialize_word_property("Definition",
             v_func.text_to_definition, v_data.DEFINITION_ADDRESS, "无")
         
-        await asyncio.sleep(2)
+        await asyncio.sleep(0.01)
         
     # 调用GoogleTranslator翻译文本
         trans_map = await self.initialize_word_property("Translation",
@@ -193,9 +200,193 @@ class Language_Learning_Widget(QWidget,Ui_Language_Learning_Widget):
         if self.progress_dialog:
             self.progress_dialog.update_progress(percent = percentage, trait = ongoing)
         
+    
+    def on_Test_button_clicked():
+        pass
+    
+    def on_Search_button_clicked():
+        pass
+    
+    def on_Brochure_button_clicked():
+        pass
+    
+    def on_Exit_button_clicked(self):
+        reply = QMessageBox.question(
+            self,
+            title = "Confirmation",
+            text = "Be sure that you've saved your Data for further use!",
+            buttons = QMessageBox.Yes | QMessageBox.No,
+            defaultButton = QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:    
+            self.Upper_parent.show_float_pet()
+            self.close()
+            
+    def on_Mode_button_clicked():
+        pass
+    
+    def show_self(self):   self.show()
+    
     def set_all_buttons_enabled(self, enabled: bool):        
         for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
-            
+    
+    def closeEvent(self, event):
+        reply = QMessageBox.question(
+            self,
+            title = "Confirmation",
+            text = "Be sure that you've saved your Data for further use!",
+            buttons = QMessageBox.Yes | QMessageBox.No,
+            defaultButton = QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:    
+            self.Upper_parent.show_float_pet()
+            event.accept()
+        else:   event.ignore()
+        
 
+class Test_Widget(QWidget,Ui_Test_Window):
+    
+    def __init__(self, parent = None, flags = Qt.WindowFlags()):
+        super().__init__()
+        self.setupUi(self)  
+        self.Upper_parent = parent   
+        self.result_display = None
+        
+        self.questions = {}
+        self.current_idx = 0
+        self.buttons = []   # 装载buttons
+        
+        self.correct_count = 0
+    
+    def on_Play_current_button_clicked():
+        pass
+    
+    def on_Add_button_clicked():
+        pass
+    
+    def on_Pause_button_clicked():
+        pass
+    
+    def on_answer_button_clicked(self):
+        current_click = self.sender()
+        
+        if self.current_idx > len(self.question):
+            self.set_all_buttons_enabled(False)
+            if not self.result_display:    
+                self.result_display = Finish_Test_Widget(
+                    parent = self, result = self.correct_count )
+            self.result_display.show()
             
-                    
+        else:
+            pass
+        
+        # update_Progress来更新进度条
+    
+    def choose_mode(self):
+        mode_selection = [
+            "Random word-bank",
+            "Selected words",   # 用于特殊装载, 留接口可以用
+            "Words from my Brochure"
+        ]
+        current_mode, jdg = QInputDialog.getitem(self, "Initializing......", 
+            "Please choose your preferred mode.", mode_selection, 0, False )
+        if not jdg or not current_mode:     
+            self.Upper_parent.show_self()
+            self.close()
+    
+        self.initialize(mode = current_mode)# 根据不同模式加载不同体量的词库，并且随机选择choices，存入questions
+        
+        # 初始化
+        
+    def set_all_buttons_enabled(self, enabled: bool):        
+        for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
+    
+    def closeEvent(self, event):
+        
+        # Remember to eliminate the generated temp_data_storage
+        
+        self.Upper_parent.show_self()
+        event.accept()
+        
+     
+class Finish_Test_Widget(QWidget,Ui_Finish_Test):
+    
+    def __init__(self, parent = None, flags = Qt.WindowFlags(), result = int()):
+        super().__init__()
+        self.setupUi(self)  
+        self.Upper_parent = parent   
+      
+        self.Test_result      
+      
+    def on_Save_button_clicked(self):
+        self.close()
+        pass
+    
+    def on_Abandon_button_clicked(self):
+        self.close()
+        pass
+    
+    
+    def closeEvent(self, event):
+        
+        # Remember to eliminate the generated temp_data_storage
+        # Default is abandon
+        
+        self.Upper_parent.show_self()
+        event.accept()
+
+class Search_Widget(QWidget,Ui_Word_Search):
+    
+    def __init__(self, parent = None, flags = Qt.WindowFlags()):
+        super().__init__()
+        self.setupUi(self)  
+        self.Upper_parent = parent   
+        
+        self.Definition
+        self.Translation
+        
+    def on_Search_word_button_clicked():
+        pass
+    
+    def on_Play_button_clicked():
+        pass
+    
+    def on_Add_button_clicked():
+        pass
+    
+    def on_Back_button_clicked():
+        pass
+    
+    
+    def closeEvent(self, event):
+        
+        # Remember to eliminate the generated temp_data_storage
+        
+        self.Upper_parent.show_self()
+        event.accept()
+   
+        
+class Word_Bank_Widget(QWidget,Ui_My_Word_Brochure):
+    
+    def __init__(self, parent = None, flags = Qt.WindowFlags()):
+        super().__init__()
+        self.setupUi(self)  
+        self.Upper_parent = parent   
+        
+    def on_word_select_clicked():
+        pass
+    
+    def on_Play_button_clicked():
+        pass
+    
+    def on_Back_button_clicked():
+        pass
+    
+    
+    def closeEvent(self, event):
+        
+        # Remember to eliminate the generated temp_data_storage
+        
+        self.Upper_parent.show_self()
+        event.accept()
+        

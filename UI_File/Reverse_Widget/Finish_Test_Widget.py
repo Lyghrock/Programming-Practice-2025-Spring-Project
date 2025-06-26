@@ -11,28 +11,28 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(400, 150)
-        Form.setMinimumSize(QtCore.QSize(400, 150))
-        Form.setMaximumSize(QtCore.QSize(400, 150))
-        self.Save_button = QtWidgets.QPushButton(Form)
+class Ui_Finish_Test(object):
+    def setupUi(self, Finish_Test):
+        Finish_Test.setObjectName("Finish_Test")
+        Finish_Test.resize(400, 150)
+        Finish_Test.setMinimumSize(QtCore.QSize(400, 150))
+        Finish_Test.setMaximumSize(QtCore.QSize(400, 150))
+        self.Save_button = QtWidgets.QPushButton(Finish_Test)
         self.Save_button.setGeometry(QtCore.QRect(50, 80, 131, 51))
         self.Save_button.setObjectName("Save_button")
-        self.Abandon_button = QtWidgets.QPushButton(Form)
+        self.Abandon_button = QtWidgets.QPushButton(Finish_Test)
         self.Abandon_button.setGeometry(QtCore.QRect(210, 80, 131, 51))
         self.Abandon_button.setObjectName("Abandon_button")
-        self.Test_result = QtWidgets.QLabel(Form)
+        self.Test_result = QtWidgets.QLabel(Finish_Test)
         self.Test_result.setGeometry(QtCore.QRect(120, 20, 141, 41))
         self.Test_result.setObjectName("Test_result")
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi(Finish_Test)
+        QtCore.QMetaObject.connectSlotsByName(Finish_Test)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, Finish_Test):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Finish_Test"))
-        self.Save_button.setText(_translate("Form", "Save"))
-        self.Abandon_button.setText(_translate("Form", "Abandon"))
-        self.Test_result.setText(_translate("Form", "Result"))
+        Finish_Test.setWindowTitle(_translate("Finish_Test", "Finish_Test"))
+        self.Save_button.setText(_translate("Finish_Test", "Save"))
+        self.Abandon_button.setText(_translate("Finish_Test", "Abandon"))
+        self.Test_result.setText(_translate("Finish_Test", "Result"))
