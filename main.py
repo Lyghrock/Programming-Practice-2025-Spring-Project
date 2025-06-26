@@ -12,6 +12,7 @@ from translator_functions import translate,ScreenSelector_For_ScreenSelect,Scree
 from Reverse_Section.reverse_programme import Language_Learning_Widget
 import Reverse_Section.reverse_data_storage as v_data
 from LLM_chating_functions import get_DeepSeek_response
+from pet_player import GifPetWindow
 
 class FloatPet(QWidget, Ui_FloatPet):
     def __init__(self):
@@ -258,8 +259,10 @@ if __name__ == "__main__":
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    float_pet = FloatPet()
-    float_pet.show()
+    # float_pet = FloatPet()
+    # float_pet.show()
+    window = GifPetWindow(FloatPet)
+    window.show()
 
     with loop:
         loop.run_forever()
