@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\lenovo\gits\UI_File\chat_window.ui'
+# Form implementation generated from reading ui file 'chat_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -25,16 +25,15 @@ class Ui_Chat(object):
         self.combo_chat_type = QtWidgets.QComboBox(Chat)
         self.combo_chat_type.setObjectName("combo_chat_type")
         self.combo_chat_type.addItem("")
-        self.combo_chat_type.addItem("")
         self.horizontalLayout_3.addWidget(self.combo_chat_type)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.horizontalLayout_3.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.text_chat = QtWidgets.QTextBrowser(Chat)
         self.text_chat.setStyleSheet("background-color: #FFFFFF;\n"
 "border: 1px solid #CCCCCC;\n"
 "border-radius: 5px;\n"
-"font-size: 12px;")
+"font-size: 18px;")
         self.text_chat.setObjectName("text_chat")
         self.verticalLayout.addWidget(self.text_chat)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -52,7 +51,7 @@ class Ui_Chat(object):
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.horizontalLayout_2.addItem(spacerItem1)
         self.btn_back = QtWidgets.QPushButton(Chat)
         self.btn_back.setObjectName("btn_back")
@@ -66,6 +65,5 @@ class Ui_Chat(object):
         _translate = QtCore.QCoreApplication.translate
         self.label.setText(_translate("Chat", "对话对象:"))
         self.combo_chat_type.setItemText(0, _translate("Chat", "DeepSeek"))
-        self.combo_chat_type.setItemText(1, _translate("Chat", "小喷子"))
         self.btn_send.setText(_translate("Chat", "发送"))
         self.btn_back.setText(_translate("Chat", "返回"))

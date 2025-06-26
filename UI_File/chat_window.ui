@@ -27,17 +27,12 @@
          <string>DeepSeek</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>小喷子</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -55,7 +50,7 @@
       <string notr="true">background-color: #FFFFFF;
 border: 1px solid #CCCCCC;
 border-radius: 5px;
-font-size: 12px;</string>
+font-size: 18px;</string>
      </property>
     </widget>
    </item>
@@ -72,14 +67,14 @@ padding: 5px;</string>
      </item>
      <item>
       <widget class="QPushButton" name="btn_send">
-       <property name="text">
-        <string>发送</string>
-       </property>
        <property name="minimumSize">
         <size>
          <width>60</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="text">
+        <string>发送</string>
        </property>
       </widget>
      </item>
@@ -90,7 +85,7 @@ padding: 5px;</string>
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>

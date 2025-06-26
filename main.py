@@ -11,6 +11,7 @@ from translator_functions import translate,ScreenSelector_For_ScreenSelect,Scree
 
 from Reverse_Section.reverse_programme import Language_Learning_Widget
 import Reverse_Section.reverse_data_storage as v_data
+from LLM_chating_functions import get_DeepSeek_response
 
 class FloatPet(QWidget, Ui_FloatPet):
     def __init__(self):
@@ -219,8 +220,8 @@ class ChatWindow(QWidget, Ui_Chat):
         self.setWindowTitle("智能对话")
         
         # 设置聊天对象选项
-        self.combo_chat_type.addItem("DeepSeek")
-        self.combo_chat_type.addItem("小喷子")
+        #self.combo_chat_type.addItem("DeepSeek")
+        #self.combo_chat_type.addItem("小喷子")
         
         # 连接信号
         self.btn_back.clicked.connect(self.close)
@@ -235,14 +236,16 @@ class ChatWindow(QWidget, Ui_Chat):
             # 在聊天记录中添加用户消息
             self.text_chat.append(f"<b>你:</b> {message}")
             self.input_message.clear()
-            
+            self.text_chat.append(f"<b>{chat_type}:</b> {"思考中"}")
             # 模拟AI回复
-            if chat_type == "DeepSeek":
-                reply = "DeepSeek: 你好！我是DeepSeek助手，很高兴为你服务。"
-            else:
-                reply = "小喷子: 哼！你问这个干嘛？"
-            
-            self.text_chat.append(f"<b>{chat_type}:</b> {reply}")
+            # if chat_type == "DeepSeek":
+            #     reply = "DeepSeek: 你好！我是DeepSeek助手，很高兴为你服务。"
+            # else:
+            #     reply = "小喷子: 哼！你问这个干嘛？"
+            def show_reply():
+                reply = get_DeepSeek_response(message)
+                self.text_chat.append(f"<b>{chat_type}:</b> {reply}")
+            QTimer.singleShot(100, show_reply)
     
     def closeEvent(self, event):
         self.float_pet.show_float_pet()
