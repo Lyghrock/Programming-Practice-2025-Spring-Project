@@ -1,11 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint,QTimer
 from PyQt5.QtGui import QPainter, QColor, QPen
 from UI_File.floating_window_ui import Ui_FloatPet
 from UI_File.antonym_learning_ui import Ui_Study
 from UI_File.screen_translate_ui import Ui_Translation
 from UI_File.chat_window_ui import Ui_Chat
+from translator_functions import translate,ScreenSelector_For_ScreenSelect,ScreenSelector_For_Translator
 
 class FloatPet(QWidget, Ui_FloatPet):
     def __init__(self):
@@ -187,11 +188,21 @@ class TranslationWindow(QWidget, Ui_Translation):
         self.btn_select_area.clicked.connect(self.select_area)
         
     def select_area(self):
-        # 屏幕框选接口
-        print("框选区域接口调用")
-        # 模拟翻译结果
-        self.text_result.setText("这是一段翻译后的文本\nThis is a translated text")
+        def after_screenshot():
+            print("截图完成，开始翻译")
+            self.text_result.setText("截图完成，开始翻译")
+            self.show()
+            QTimer.singleShot(100, self.run_translation)
+            
+        self.hide()
+        self.selector = ScreenSelector_For_Translator(on_finished_callback=after_screenshot)
+        self.selector.showFullScreen()
+        QTimer.singleShot(100, self.selector.raise_)
+        QTimer.singleShot(100, self.selector.activateWindow)
         
+    def run_translation(self):
+        self.chinese = translate("D:\\Desk_Pet_Data_Storage\\Temp\\screenshot.png")
+        self.text_result.setText(self.chinese)
     def closeEvent(self, event):
         self.float_pet.show_float_pet()
         event.accept()

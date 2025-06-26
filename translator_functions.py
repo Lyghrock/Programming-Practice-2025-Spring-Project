@@ -84,7 +84,7 @@ def translate(image_path: str) -> str:
 
 
 class ScreenSelector_For_Translator(QWidget):
-    def __init__(self):
+    def __init__(self,on_finished_callback):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -94,6 +94,7 @@ class ScreenSelector_For_Translator(QWidget):
         self.origin = QPoint()
         self.current_pos = QPoint()
         self.selecting = False
+        self.on_finished_callback = on_finished_callback
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -143,7 +144,8 @@ class ScreenSelector_For_Translator(QWidget):
         #print(f"截图保存 {'成功' if success else '失败'}，路径：{save_path}")
 
         #print(translate(save_path))
-
+        if self.on_finished_callback:
+            self.on_finished_callback()
         self.close()
 
 
@@ -162,7 +164,7 @@ class ScreenSelector_For_ScreenSelect(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         # 画半透明遮罩
-        painter.fillRect(self.rect(), QColor(0, 0, 0, 50))
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 10))
         if self.selecting:
             # 只画矩形边框，不填充
             pen = QPen(QColor(255, 0, 0), 4)  # DodgerBlue，线宽2
