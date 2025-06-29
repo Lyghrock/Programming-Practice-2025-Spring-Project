@@ -31,5 +31,5 @@ class Ui_Progress_Keeper(object):
 
     def retranslateUi(self, Progress_Keeper):
         _translate = QtCore.QCoreApplication.translate
-        Progress_Keeper.setWindowTitle(_translate("Progress_Keeper", "Porgress_Keeper"))
+        Progress_Keeper.setWindowTitle(_translate("Progress_Keeper", "Progress_Keeper"))
         self.Annotations.setText(_translate("Progress_Keeper", "Progress"))

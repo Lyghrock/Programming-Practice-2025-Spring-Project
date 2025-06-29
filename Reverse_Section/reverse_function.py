@@ -18,7 +18,7 @@ import deep_translator as trl
 
 from . import reverse_data_storage as v_data
 
-INITIAL_SCALE = 50
+INITIAL_SCALE = 200
     # 调试可以改这个大小
 TEST_SCALE = 20
 
@@ -342,18 +342,17 @@ async def get_data_from_database(text, address = str(), type_name = str()):
         return dict(res) if res else None
     
     
-async def get_data_size(address = str(), type_name = str()):
+def get_data_size(address = str(), type_name = str()):
 
-    async with SQL.connect(address) as db:
-        db.row_factory = SQL.Row
-        cursor = await db.execute(f"SELECT COUNT(*) FROM {type_name}")
-        result = await cursor.fetchone()
-        await cursor.close()
+    with sqlite3.connect(address) as db:
+        db.row_factory = sqlite3.Row
+        cursor = db.execute(f"SELECT COUNT(*) FROM {type_name}")
+        result = cursor.fetchone()
+        cursor.close()
         return result[0] if result[0] is not None else 0
     
     
-
-async def check_data_validity(address = str()) -> bool:
+def check_data_validity(address = str()) -> bool:
     
     if not os.path.isfile(address):    return None
     
@@ -361,17 +360,17 @@ async def check_data_validity(address = str()) -> bool:
     required_traits = ["id","word","translation","definition"
                        ,"audio","picture","enable_english_mark"]
 
-    async with SQL.connect(address) as db:
-        cursor = await db.execute(f"PRAGMA table_info({table_name})")
-        columns_info = await cursor.fetchall()
-        await cursor.close()
+    with sqlite3.connect(address) as db:
+        cursor = db.execute(f"PRAGMA table_info({table_name})")
+        columns_info = cursor.fetchall()
+        cursor.close()
 
         existing_traits = {col[1] for col in columns_info}  # set数据结构
         missing = [trait for trait in required_traits if trait not in existing_traits]
         if missing:    return None
         else:   
-            cursor_2 = await db.execute(f"SELECT word FROM {table_name}")
-            word_list = await cursor_2.fetchall()
-            await cursor_2.close()
+            cursor_2 = db.execute(f"SELECT word FROM {table_name}")
+            word_list = cursor_2.fetchall()
+            cursor_2.close()
             
             return [row[0] for row in word_list]

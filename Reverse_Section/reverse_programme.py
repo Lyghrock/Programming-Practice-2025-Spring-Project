@@ -53,6 +53,11 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         self.set_all_buttons_enabled(False)
         
         v_data.Initial_Word_list = v_func.load_word_list()
+        self.Test_button.clicked.connect(self.on_Test_button_clicked)
+        self.Search_button.clicked.connect(self.on_Search_button_clicked)
+        self.Brochure_button.clicked.connect(self.on_Brochure_button_clicked)
+        self.Exit_button.clicked.connect(self.on_Exit_button_clicked)
+        self.Mode_button.clicked.connect(self.on_Mode_button_clicked)
         
         QTimer.singleShot(0, lambda : asyncio.ensure_future(self.initialization()))
     
@@ -217,14 +222,14 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
     def on_Search_button_clicked(self):
         self.hide()
         self.set_all_buttons_enabled(False)
-        self.Test_Widget = Search_Widget(parent = self)
-        self.Test_Widget.show()
+        self.Search_Widget = Search_Widget(parent = self)
+        self.Search_Widget.show()
     
     def on_Brochure_button_clicked(self):
         self.hide()
         self.set_all_buttons_enabled(False)
-        self.Test_Widget = Word_Bank_Widget(parent = self)
-        self.Test_Widget.show()
+        self.Word_Brochure_Widget = Word_Bank_Widget(parent = self)
+        self.Word_Brochure_Widget.show()
     
     def on_Exit_button_clicked(self):
         reply = QMessageBox.question(
@@ -246,18 +251,14 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
     
     def closeEvent(self, event):
         reply = QMessageBox.question(
-            self,
-            title = "Confirmation",
-            text = "Sure to exit? ",
-            buttons = QMessageBox.Yes | QMessageBox.No,
-            defaultButton = QMessageBox.No
+            self, "Confirmation",   "Sure to exit? ",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         if reply == QMessageBox.Yes:    
             self.Upper_parent.show_float_pet()
             event.accept()
         else:   event.ignore()
         
-
 class Test_Widget(QWidget,Ui_Test_Window):
     
     def __init__(self, parent = None, flags = Qt.WindowFlags()):
@@ -266,6 +267,9 @@ class Test_Widget(QWidget,Ui_Test_Window):
         self.Upper_parent = parent   
         self.result_display = None
         self.pause_display = None
+        import inspect
+        for frame in inspect.stack():
+            print(f"{frame.filename}:{frame.lineno} - {frame.function}")
         
         self.test_data_stroage = dict()
         self.questions = list()
@@ -286,8 +290,17 @@ class Test_Widget(QWidget,Ui_Test_Window):
         self.Play_current_button.clicked.connect(self.on_Play_current_button_clicked)
         self.Pause_button.clicked.connect(self.on_Pause_button_clicked)
         
-        asyncio.create_task(self.choose_mode())
-        
+        self.test_mode = self.choose_mode()
+        self.test_display_mode = self.choose_display_mode()
+        params_for_init = self.prepare_for_initialize_params(self.test_mode)
+        if params_for_init is None:
+            self.Upper_parent.show()
+            self.set_all_buttons_enabled(False)
+            self.close()    # 保证一定有数据才开始test
+            return
+    
+        asyncio.create_task(self.initialize(*params_for_init))
+    
         self.time_keeper_initialize()
         
     def update_current_time(self):
@@ -364,45 +377,37 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
         else:    # update_Progress来更新进度条
             proportion = math.floor( 100 * self.current_idx / len(self.questions))
             self.Test_Progress.setValue(proportion)
+            self.update_button_content()
     
-    @asyncSlot()
-    async def choose_mode(self):
+    def choose_mode(self):
         
         mode_selection = [
             "Random word-bank",
             "Selected words",   # 用于特殊装载, 留接口可以用
             "Words from my Brochure"
         ]
-        current_mode, _ = QInputDialog.getitem(self, "Initializing......", 
+        current_mode, _ = QInputDialog.getItem(self, "Initializing......", 
             "Please choose your preferred mode.", mode_selection, 0, False )
         if not _ or not current_mode:     
-            self.Upper_parent.show_self()
+            self.Upper_parent.show()
             self.close()
+            
+        return current_mode
     
-        jdg = await self.initialize(mode = current_mode)
-            # 根据不同模式加载不同体量的词库，并且随机选择choices，存入questions和data_storage
-        if not jdg:    
-            self.Upper_parent.show_self()
-            self.set_all_buttons_enabled(False)
-            self.close()    # 保证一定有数据才开始test
-        
+    def choose_display_mode(self):
         # 初始化按钮和test的选择模式：
         current_display_mode, _2 = QInputDialog.getItem(self, "Choosing Test Icon...",
             "Please choose your preferred traits for test.", 
             ["definition", "translation", "word", "picture"], 0, False)
         if not _2 or not current_display_mode:     
-            self.Upper_parent.show_self()
+            self.Upper_parent.show()
             self.close()
-        self.test_display_mode = current_display_mode
 
+        return current_display_mode
+    
+    def prepare_for_initialize_params(self, mode = None):
         
-        
-    async def initialize(self, mode = None):
-        assert mode is not None, "Please select mode before you enter the test."
-        
-        slicing = None
-        test_key = None
-        test_address = None
+        assert mode, "Please select a mode first."
         total_l = len(v_data.Initial_Word_list)
         
         if mode == "Random word-bank":
@@ -410,18 +415,18 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             # 输入一个合理的random size: 
             jdg, jdg_count = False, 0
             while jdg_count < 3:
-                word_bank_size, jdg = QInputDialog.getInt(self, "Random Slicing Size"
+                size, jdg = QInputDialog.getInt(self, "Random Slicing Size"
                     , "Please input a size for your upcoming test.", 
-                    min = 20, max = math.floor(len(total_l)/4))
+                    min = 20, max = math.floor(total_l/4))
                 jdg_count += 1
                 if jdg:   break
             else:   
                 print("Fail to initialize my random word bank.")
-                return False
+                return None
             
-            slicing = random.sample(range(0,total_l),word_bank_size)
+            slicing = random.sample(range(0,total_l),size)
             test_key = v_data.Initial_Word_list
-            test_address = v_data.INITIAL_ADDRESS
+            test_address = v_data.WORD_BANK_ADDRESS
             
         elif mode == "Selected words":
             # NOTICE: 此处并非任何.db文件都可以被load，将检测其是否具有我的.db形式
@@ -432,29 +437,36 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
                 test_address, _ = QFileDialog.getOpenFileName(self, "Please Choose your word bank",
                         "", "Database Files (*.db);;All Files (*)"  )
                 jdg_count += 1
-                test_key = await v_func.check_data_validity(test_address)
+                test_key = v_func.check_data_validity(test_address)
                 if test_key:    break
                 else:    QMessageBox.warning(self, "Error", "Please select a valid .db file with correct format.")
             else:   
                 print("Fail to get a valid path.")
-                return False
+                return None
             
             # 成功定位则按照正常流程提供中间变量
-            selected_size = await v_func.get_data_size(address = test_address, type_name = "word_bank")
-            slicing = list(range(0,selected_size))
+            size = v_func.get_data_size(address = test_address, type_name = "word_bank")
+            slicing = list(range(0,size))
                     
         elif mode == "Words from my Brochure":
-            test_key = await v_func.check_data_validity(v_data.WORD_BROCHURE_ADDRESS)
+            test_key = v_func.check_data_validity(v_data.WORD_BROCHURE_ADDRESS)
             if test_key:
                 test_address = v_data.WORD_BROCHURE_ADDRESS
-                brochure_size = await v_func.get_data_size(address = test_address, type_name = "word_bank")
-                slicing = list(range(0,brochure_size))
+                size = v_func.get_data_size(address = test_address, type_name = "word_bank")
+                slicing = list(range(0,size))
             else:   
                 print("Word Brochure Stroage is invalid, please check.")
-                return False
+                return None
     
         else:   raise Exception("It seems you didn't select mode correctly???")
-            
+        
+        return slicing, test_key, test_address, size
+             
+    async def initialize(self, *params):
+        
+        mode = self.test_mode
+        slicing ,test_key ,test_address ,word_bank_size = params
+        
         # 从.db里取出数据，写入data_storage
         assert slicing, "Invalid Slicing Initialzation. Programme Exit."
         random.shuffle(slicing)    
@@ -467,38 +479,37 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
         # random为每个问题生成4个answer装入question:
         for current in self.test_data_stroage.values():
             question_word = current["word"]
-            options = [self.test_data_stroage[random.randint(
-                        0,word_bank_size)] for i in range(3)]
+            options = [self.test_data_stroage[test_key[
+                        random.choice(slicing)]] for i in range(3)]
             options.append(current)
             assert len(options) == 4, "Werid??? Length of options are invalid."
             random.shuffle(options)
             self.questions.append((question_word, options))
         
         assert self.questions and self.test_data_stroage, "Blank occurs when data loading."
-        return True
+        self.update_button_content()
     
     def time_keeper_initialize(self):
+       
         self.timer = QTimer(self)
         self.sec_count = 0
         self.min_count = 0
         self.timer.timeout.connect(self.update_current_time)
         self.timer.start(1000)
-        
-
+        print("xnxnncekmec")
+    
     def set_all_buttons_enabled(self, enabled: bool):        
         for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
         
     def closeEvent(self, event):
         reply = QMessageBox.question(
-            self,
-            title = "Confirmation",
-            text = "Be sure that you want to Abandon the current Test!",
-            buttons = QMessageBox.Yes | QMessageBox.No,
-            defaultButton = QMessageBox.No
+            self, "Confirmation",
+            "Be sure that you want to Abandon the current Test!",
+            QMessageBox.Yes | QMessageBox.No,   QMessageBox.No
         )
         # Remember to eliminate the generated temp_data_storage
         if reply ==  QMessageBox.Yes:
-            self.Upper_parent.show_self()
+            self.Upper_parent.show()
             event.accept()
         
      
@@ -579,11 +590,9 @@ class Finish_Test_Widget(QWidget,Ui_Finish_Test):
     def on_Abandon_button_clicked(self):
         
         reply = QMessageBox.question(
-            self,
-            title = "Confirmation",
-            text = "Be sure that you want to Abandon the current Test!",
-            buttons = QMessageBox.Yes | QMessageBox.No,
-            defaultButton = QMessageBox.No
+            self,   "Confirmation",
+            "Be sure that you want to Abandon the current Test!",
+            QMessageBox.Yes | QMessageBox.No,    QMessageBox.No
         )
         if reply == QMessageBox.Yes:    
             self.Upper_parent.Upper_parent.show()
@@ -608,16 +617,16 @@ class Search_Widget(QWidget,Ui_Word_Search):
         self.Definition
         self.Translation
         
-    def on_Search_word_button_clicked():
+    def on_Search_word_button_clicked(self):
         pass
     
-    def on_Play_button_clicked():
+    def on_Play_button_clicked(self):
         pass
     
-    def on_Add_button_clicked():
+    def on_Add_button_clicked(self):
         pass
     
-    def on_Back_button_clicked():
+    def on_Back_button_clicked(self):
         pass
     
     
@@ -625,7 +634,7 @@ class Search_Widget(QWidget,Ui_Word_Search):
         
         # Remember to eliminate the generated temp_data_storage
         
-        self.Upper_parent.show_self()
+        self.Upper_parent.show()
         event.accept()
    
         
@@ -650,6 +659,6 @@ class Word_Bank_Widget(QWidget,Ui_My_Word_Brochure):
         
         # Remember to eliminate the generated temp_data_storage
         
-        self.Upper_parent.show_self()
+        self.Upper_parent.show()
         event.accept()
         
