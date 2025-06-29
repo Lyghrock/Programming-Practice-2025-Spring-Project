@@ -29,9 +29,9 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>260</y>
+     <y>200</y>
      <width>231</width>
-     <height>301</height>
+     <height>361</height>
     </rect>
    </property>
   </widget>
@@ -52,7 +52,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>70</y>
+     <y>40</y>
      <width>151</width>
      <height>61</height>
     </rect>
@@ -60,18 +60,34 @@
    <property name="text">
     <string>Current_chosen_word</string>
    </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="Play_button">
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>160</y>
+     <y>120</y>
      <width>201</width>
      <height>61</height>
     </rect>
    </property>
    <property name="text">
     <string>Standard_Voice</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Load_button">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>580</y>
+     <width>111</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Load_Brochure</string>
    </property>
   </widget>
  </widget>

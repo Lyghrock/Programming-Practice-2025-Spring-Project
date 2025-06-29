@@ -257,9 +257,9 @@ def save_loaded_data(map = dict(), address = str()):
     folder = os.path.dirname(address)
     if not os.path.exists(folder):    os.makedirs(folder)
     try:
-        with open(address, "w", encoding = "utf-8") as f:
-            for word, definition in map.items():
-                f.write(f"{word}\t{definition}\n")
+        with open(address, "a", encoding = "utf-8") as f:
+            for word, property in map.items():
+                f.write(f"{word}\t{property}\n")
     except Exception as error:  print(f"Save {address} Eror: {error}")
         
 def preload_existing_data(map = dict(), address = str()):
@@ -275,7 +275,12 @@ def preload_existing_data(map = dict(), address = str()):
 
 TRANSLATOR = trl.GoogleTranslator(source = "zh-CN", target = "en")
 async def translate_text(text):
-    return await asyncio.to_thread(TRANSLATOR.translate, text)
+    try:
+        result = await asyncio.to_thread(TRANSLATOR.translate, text)
+        return result
+    except Exception as e:
+        print(f"Translation Failure: {e}")
+        return None
 
         
 # SQLite————WORD_BANK：
@@ -313,7 +318,9 @@ async def update_database(address = str()
                 current_data = [(key, inserter[key]) for key in inserter.keys()]
                     # print(current_data)
                     # print(type(current_data[0][1]))
-                print(f"Trying to load {trait}.")
+                if judge_initial:   print(f"Trying to load {trait} in {type_name}.")
+                else:   print(f"Updating {trait} in {type_name}.")
+                
                 await cursor.executemany(
                 f'''
                     INSERT INTO {type_name} (word, {trait})
@@ -323,7 +330,7 @@ async def update_database(address = str()
                 
             await agent.commit()
     
-async def get_data_from_database(text, address = str(), type_name = str()):
+async def get_data_from_database(text, address = str(), type_name = str(), mode = "default"):
     
     try:    assert os.path.exists(address) == True
     except Exception as error:   
@@ -331,14 +338,20 @@ async def get_data_from_database(text, address = str(), type_name = str()):
         return None
     
     async with SQL.connect(address) as agent:
-        agent.row_factory = sqlite3.Row  # 返回哈希表
-        cursor = await agent.execute(f"SELECT * FROM {type_name} WHERE word = ?",(text,))
+        if mode == "default":
+            agent.row_factory = sqlite3.Row  # 返回哈希表
+            cursor = await agent.execute(f"SELECT * FROM {type_name} WHERE word = ?",(text,))
+            res = await cursor.fetchone()    
+            await cursor.close()
+            
+            return dict(res) if res else None
         
-        res = await cursor.fetchone()
-        
-        await cursor.close()
-        
-        return dict(res) if res else None
+        else:
+            cursor = await agent.execute(f"SELECT {text} FROM {type_name}")
+            res = await cursor.fetchall()
+            await cursor.close()
+            
+            return [word[0] for word in res]
     
     
 def get_data_size(address = str(), type_name = str()):
@@ -351,11 +364,10 @@ def get_data_size(address = str(), type_name = str()):
         return result[0] if result[0] is not None else 0
     
     
-def check_data_validity(address = str()) -> bool:
+def check_data_validity(address = str(), table_name = str()) -> bool:
     
     if not os.path.isfile(address):    return None
     
-    table_name = "word_bank"
     required_traits = ["id","word","translation","definition"
                        ,"audio","picture","enable_english_mark"]
 
