@@ -117,8 +117,8 @@ async def reverse_audio(audio_path):
     
     def single_reverse():
         # # 确保ffmpeg配置成功!
-        # AudioSegment.converter = pydub.utils.which("ffmpeg")
-        # AudioSegment.ffprobe = pydub.utils.which("ffprobe")
+        AudioSegment.converter = pydub.utils.which("ffmpeg")
+        AudioSegment.ffprobe = pydub.utils.which("ffprobe")
         
         try:
             audio = AudioSegment.from_file(audio_path, format = "mp3")
