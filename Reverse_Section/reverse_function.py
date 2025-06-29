@@ -13,6 +13,7 @@ import sqlite3  # 用aiosqlite来代替sqlite3来实现异步写入.db数据库
 import aiosqlite as SQL
 
 from bs4 import BeautifulSoup
+import deep_translator as trl
 
 
 from . import reverse_data_storage as v_data
@@ -116,8 +117,8 @@ async def reverse_audio(audio_path):
     
     def single_reverse():
         # # 确保ffmpeg配置成功!
-        # AudioSegment.converter = pydub.utils.which("ffmpeg")
-        # AudioSegment.ffprobe = pydub.utils.which("ffprobe")
+        AudioSegment.converter = pydub.utils.which("ffmpeg")
+        AudioSegment.ffprobe = pydub.utils.which("ffprobe")
         
         try:
             audio = AudioSegment.from_file(audio_path, format = "mp3")
@@ -272,7 +273,7 @@ def preload_existing_data(map = dict(), address = str()):
 
 
 # Translation Module:
-import deep_translator as trl
+
 TRANSLATOR = trl.GoogleTranslator(source = "zh-CN", target = "en")
 async def translate_text(text):
     return await asyncio.to_thread(TRANSLATOR.translate, text)

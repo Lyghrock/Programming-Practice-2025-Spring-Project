@@ -2,14 +2,17 @@ import sys
 from qasync import QEventLoop
 import asyncio
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint,QTimer
 from PyQt5.QtGui import QPainter, QColor, QPen
 from UI_File.floating_window_ui import Ui_FloatPet
 from UI_File.screen_translate_ui import Ui_Translation
 from UI_File.chat_window_ui import Ui_Chat
+from translator_functions import translate,ScreenSelector_For_ScreenSelect,ScreenSelector_For_Translator
 
 from Reverse_Section.reverse_programme import Language_Learning_Widget
 import Reverse_Section.reverse_data_storage as v_data
+from LLM_chating_functions import get_DeepSeek_response
+from pet_player import GifPetWindow
 
 class FloatPet(QWidget, Ui_FloatPet):
     def __init__(self):
@@ -191,11 +194,21 @@ class TranslationWindow(QWidget, Ui_Translation):
         self.btn_select_area.clicked.connect(self.select_area)
         
     def select_area(self):
-        # 屏幕框选接口
-        print("框选区域接口调用")
-        # 模拟翻译结果
-        self.text_result.setText("这是一段翻译后的文本\nThis is a translated text")
+        def after_screenshot():
+            print("截图完成，开始翻译")
+            self.text_result.setText("截图完成，开始翻译")
+            self.show()
+            QTimer.singleShot(100, self.run_translation)
+            
+        self.hide()
+        self.selector = ScreenSelector_For_Translator(on_finished_callback=after_screenshot)
+        self.selector.showFullScreen()
+        QTimer.singleShot(100, self.selector.raise_)
+        QTimer.singleShot(100, self.selector.activateWindow)
         
+    def run_translation(self):
+        self.chinese = translate("D:\\Desk_Pet_Data_Storage\\Temp\\screenshot.png")
+        self.text_result.setText(self.chinese)
     def closeEvent(self, event):
         self.float_pet.show_float_pet()
         event.accept()
@@ -208,8 +221,8 @@ class ChatWindow(QWidget, Ui_Chat):
         self.setWindowTitle("智能对话")
         
         # 设置聊天对象选项
-        self.combo_chat_type.addItem("DeepSeek")
-        self.combo_chat_type.addItem("小喷子")
+        #self.combo_chat_type.addItem("DeepSeek")
+        #self.combo_chat_type.addItem("小喷子")
         
         # 连接信号
         self.btn_back.clicked.connect(self.close)
@@ -224,14 +237,16 @@ class ChatWindow(QWidget, Ui_Chat):
             # 在聊天记录中添加用户消息
             self.text_chat.append(f"<b>你:</b> {message}")
             self.input_message.clear()
-            
+            self.text_chat.append(f"<b>{chat_type}:</b> {"思考中"}")
             # 模拟AI回复
-            if chat_type == "DeepSeek":
-                reply = "DeepSeek: 你好！我是DeepSeek助手，很高兴为你服务。"
-            else:
-                reply = "小喷子: 哼！你问这个干嘛？"
-            
-            self.text_chat.append(f"<b>{chat_type}:</b> {reply}")
+            # if chat_type == "DeepSeek":
+            #     reply = "DeepSeek: 你好！我是DeepSeek助手，很高兴为你服务。"
+            # else:
+            #     reply = "小喷子: 哼！你问这个干嘛？"
+            def show_reply():
+                reply = get_DeepSeek_response(message)
+                self.text_chat.append(f"<b>{chat_type}:</b> {reply}")
+            QTimer.singleShot(100, show_reply)
     
     def closeEvent(self, event):
         self.float_pet.show_float_pet()
@@ -244,8 +259,10 @@ if __name__ == "__main__":
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    float_pet = FloatPet()
-    float_pet.show()
+    # float_pet = FloatPet()
+    # float_pet.show()
+    window = GifPetWindow(FloatPet)
+    window.show()
 
     with loop:
         loop.run_forever()
