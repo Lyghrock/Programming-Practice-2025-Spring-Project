@@ -47,6 +47,7 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         super().__init__()
         self.setupUi(self)
         self.Upper_parent = parent
+        print("Language")
         
         # 维护一个计数进度条类，动态更新下载进度————（控件由loadUi实现）
         self.progress_dialog = v_data.ProgressDialog(parent = self)
@@ -243,7 +244,7 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
             self.Upper_parent.show_float_pet()
             self.close()
             
-    def on_Mode_button_clicked():
+    def on_Mode_button_clicked(self):
         pass    # 模式转换接口，需要配合中英文逻辑
     
     def set_all_buttons_enabled(self, enabled: bool):        
@@ -333,7 +334,7 @@ class Test_Widget(QWidget,Ui_Test_Window):
                 self.button.setIcon(QIcon(scaled_pixmap))
                 self.button.setIconSize(scaled_pixmap.size())  
             
-            else:    button.setText(self.questions[self.current_idx][1][i]["definition"])
+            else:    button.setText(self.questions[self.current_idx][1][i][self.test_display_mode])
     
     def on_Play_current_button_clicked(self):
         audio_path = self.test_data_stroage[self.questions[self.current_idx][0]]["audio"]
@@ -380,6 +381,8 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             self.update_button_content()
     
     def choose_mode(self):
+        
+        print("choose mode here!")
         
         mode_selection = [
             "Random word-bank",
@@ -496,7 +499,6 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
         self.min_count = 0
         self.timer.timeout.connect(self.update_current_time)
         self.timer.start(1000)
-        print("xnxnncekmec")
     
     def set_all_buttons_enabled(self, enabled: bool):        
         for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
