@@ -54,6 +54,10 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         self.set_all_buttons_enabled(False)
         
         v_data.Initial_Word_list = v_func.load_word_list()
+        try:
+            self.Test_button.clicked.disconnect()
+        except TypeError:
+            pass  # 没有连接时会报错，忽略它
         self.Test_button.clicked.connect(self.on_Test_button_clicked)
         self.Search_button.clicked.connect(self.on_Search_button_clicked)
         self.Brochure_button.clicked.connect(self.on_Brochure_button_clicked)
@@ -61,6 +65,10 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         self.Mode_button.clicked.connect(self.on_Mode_button_clicked)
         
         QTimer.singleShot(0, lambda : asyncio.ensure_future(self.initialization()))
+
+        print("Test_button signal receivers:", self.Test_button.receivers(self.Test_button.clicked))
+        print(f"[DEBUG] Language_Learning_Widget created at {id(self)}")
+
     
     @asyncSlot()
     async def initialization(self):
@@ -215,6 +223,7 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         
     
     def on_Test_button_clicked(self):
+        print('test button clicked')
         self.hide()
         self.set_all_buttons_enabled(False)
         self.Test_Widget = Test_Widget(parent = self)
