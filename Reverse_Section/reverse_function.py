@@ -18,7 +18,7 @@ import deep_translator as trl
 
 from . import reverse_data_storage as v_data
 
-INITIAL_SCALE = 200
+INITIAL_SCALE = 50
     # 调试可以改这个大小
 TEST_SCALE = 20
 
@@ -162,17 +162,17 @@ def load_word_list(mode = "default"):
         except Exception as e:  print(f"Ewerror when first loading word list: {e}")
     return tmp
     
-# def check_voice_directory():
+def check_voice_directory():
     
-#     if os.path.exists(v_data.AUDIO_ADDRESS) and os.path.isdir(v_data.AUDIO_ADDRESS):
-#         # check if the corresponding folder exists
-#         try:
-#             with os.scandir(v_data.AUDIO_ADDRESS) as entries:
-#                 file_count = sum(1 for entry in entries if entry.is_file() == True)
-#             return file_count >= INITIAL_SCALE
-#         except Exception as error:
-#             print(f"Unable to access the target file: {error}")
-#     else:   return False
+    if os.path.exists(v_data.AUDIO_ADDRESS) and os.path.isdir(v_data.AUDIO_ADDRESS):
+        # check if the corresponding folder exists
+        try:
+            with os.scandir(v_data.AUDIO_ADDRESS) as entries:
+                file_count = sum(1 for entry in entries if entry.is_file() == True)
+            return file_count >= INITIAL_SCALE
+        except Exception as error:
+            print(f"Unable to access the target file: {error}")
+    else:   return False
 
    
 # Crawler: 
@@ -274,13 +274,18 @@ def preload_existing_data(map = dict(), address = str()):
 # Translation Module:
 
 TRANSLATOR = trl.GoogleTranslator(source = "zh-CN", target = "en")
-async def translate_text(text):
-    try:
-        result = await asyncio.to_thread(TRANSLATOR.translate, text)
-        return result
-    except Exception as e:
-        print(f"Translation Failure: {e}")
-        return None
+async def translate_text(text, mode = "default"):
+    allowed_trial = 1 if mode == "default" else 3
+    for i in range(allowed_trial):
+        try:
+            result = await asyncio.to_thread(TRANSLATOR.translate, text)
+        except Exception as e:
+            print(f"Translation Failure: {e}")
+            asyncio.sleep(0.02)
+            result = None
+    
+            
+        
 
         
 # SQLite————WORD_BANK：

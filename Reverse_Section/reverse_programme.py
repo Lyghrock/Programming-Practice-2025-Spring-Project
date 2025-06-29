@@ -49,9 +49,6 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         self.setupUi(self)
         self.Upper_parent = parent
         
-        self.Test_Widget = Test_Widget(parent = self)
-        self.Search_Widget = Search_Widget(parent = self)
-        self.Word_Brochure_Widget = Word_Bank_Widget(parent = self)
         
         # 维护一个计数进度条类，动态更新下载进度————（控件由loadUi实现）
         self.progress_dialog = v_data.ProgressDialog(parent = self)
@@ -108,7 +105,7 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         audio_address_map = dict()
         progress_keeper = {"done" : 0 , "total" : len(v_data.Initial_Word_list)}
         
-        if v_func.check_data_exist():
+        if v_func.check_voice_directory():
             print("Audio database is already downloaded!")
             
             for word in v_data.Initial_Word_list:
@@ -220,24 +217,20 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
     def Test_button_clicked(self):
         self.hide()
         self.set_all_buttons_enabled(False)
+        self.Test_Widget = Test_Widget(parent = self)
         self.Test_Widget.show()
     
     def Search_button_clicked(self):
         self.hide()
+        self.Search_Widget = Search_Widget(parent = self)
         self.Search_Widget.show()
     
     def Brochure_button_clicked(self):
         self.hide()
+        self.Word_Brochure_Widget = Word_Bank_Widget(parent = self)
         self.Word_Brochure_Widget.show()
     
-    def Exit_button_clicked(self):
-        reply = QMessageBox.question(
-            self, "Confirmation",   "Sure to exit? ",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
-        )
-        if reply == QMessageBox.Yes:    
-            self.Upper_parent.show_float_pet()
-            self.close()
+    def Exit_button_clicked(self):    self.close()
             
     def Mode_button_clicked(self):
         pass    # 模式转换接口，需要配合中英文逻辑
@@ -345,8 +338,18 @@ class Test_Widget(QWidget,Ui_Test_Window):
         self.player.setVolume(80) 
         self.player.play()
     
-    def Add_button_clicked(self):
-        pass
+    @asyncSlot()
+    async def Add_button_clicked(self):
+        
+        params_for_brochure = dict()
+        traits = ["audio", "definition", "translation", "picture", "enable_english_mark"]
+        for trait in traits:
+            try:    params_for_brochure[trait] = {self.questions[self.current_idx][0] :
+                        self.test_data_storage[self.questions[self.current_idx][0]][trait]}
+            except Exception as error:    print("Add_Brochure Failure for loading.")
+              
+        await v_func.update_database(address = v_data.WORD_BROCHURE_ADDRESS,
+            parameters_dict = params_for_brochure, type_name = "word_brochure")
     
     def Pause_button_clicked(self):
         
@@ -607,9 +610,10 @@ class Finish_Test_Widget(QWidget,Ui_Finish_Test):
     
     def closeEvent(self, event):
         
-        if self.close_source is not None:   pass 
+        if self.close_source is not None:   pass
         else:
             self.Upper_parent.timer.start(1000)
+            self.Upper_parent.set_all_buttons_enabled(True) 
             self.Upper_parent.show()
         
         event.accept()
@@ -631,6 +635,9 @@ class Search_Widget(QWidget,Ui_Word_Search):
         self.Play_button.clicked.connect(self.Play_button_clicked)
         self.Add_button.clicked.connect(self.Add_button_clicked)
         self.Back_button.clicked.connect(self.Back_button_clicked)
+        
+        self.set_all_buttons_enabled(False)
+        self.Search_word_button.setEnabled(True)
         
     @asyncSlot() 
     async def Search_word_button_clicked(self):
@@ -695,13 +702,15 @@ class Search_Widget(QWidget,Ui_Word_Search):
         self.current_word_data = await v_func.get_data_from_database(
             current_input, v_data.WORD_BANK_ADDRESS, type_name = "word_bank")
         self.search_Ready.emit(True)
+        
+        self.set_all_buttons_enabled(True)
             
     def show_search_result(self, result):
         if isinstance(result, str):
             QMessageBox.warning(self, "Warning", result)
         elif result == True:
             assert self.current_word_data, "Data Load Error when searching"
-            self.Definition.setText(f"Definition: {self.current_word_data["definition"][:20]}")
+            self.Definition.setText(f"Definition: {self.current_word_data["definition"][:50]}")
             self.Translation.setText(f"Translation: {self.current_word_data["translation"]}")
     
     def Play_button_clicked(self):
@@ -715,11 +724,25 @@ class Search_Widget(QWidget,Ui_Word_Search):
         self.player.setVolume(80) 
         self.player.play()
     
-    def Add_button_clicked(self):
-        pass
+    @asyncSlot()
+    async def Add_button_clicked(self):
+        
+        params_for_brochure = dict()
+        traits = ["audio", "definition", "translation", "picture", "enable_english_mark"]
+        for trait in traits:
+            try:    params_for_brochure[trait] = {
+                        self.current_word_data["word"]: self.current_word_data[trait]}
+            except Exception as error:    print("Add_Brochure Failure for loading.")
+              
+        # print(params_for_brochure)
+        
+        await v_func.update_database(address = v_data.WORD_BROCHURE_ADDRESS,
+            parameters_dict = params_for_brochure, type_name = "word_brochure")
     
     def Back_button_clicked(self):    self.close()
     
+    def set_all_buttons_enabled(self, enabled: bool):        
+        for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
     
     def closeEvent(self, event):
         
@@ -743,23 +766,31 @@ class Word_Bank_Widget(QWidget,Ui_My_Word_Brochure):
         self.Load_button.clicked.connect(self.load_brochure_text)
         self.Play_button.clicked.connect(self.Play_button_clicked)
         self.Back_button.clicked.connect(self.Back_button_clicked)
+        self.set_all_buttons_enabled(False)
+        self.Load_button.setEnabled(True)
         
-        asyncio.create_task(self.get_brochure_text_data)
+        asyncio.create_task(self.get_brochure_text_data())
         
     async def get_brochure_text_data(self):
         self.brochure_text = await v_func.get_data_from_database(
             text = "word", address = v_data.WORD_BROCHURE_ADDRESS, 
             type_name = "word_brochure", mode = "brochure")
+        print("Load_succeeded")
     
     def load_brochure_text(self):
         
         text_list = self.brochure_text
-        assert text_list, "Unsuccessful .db data-reading."
+        try:    assert text_list, "Unsuccessful .db data-reading."
+        except Exception as e:  
+            print("It seems your brochure is empty.")
+            return
         self.Word_bank.clear()
         for current_text in text_list:
             temp_item = QListWidgetItem(current_text)
             # 可以设置格式
             self.Word_bank.addItem(temp_item)
+            
+        self.set_all_buttons_enabled(True)
   
     def word_select_double_clicked(self):
         
@@ -779,14 +810,25 @@ class Word_Bank_Widget(QWidget,Ui_My_Word_Brochure):
             current_text = selected_word.text()
             self.current_word_data = await v_func.get_data_from_database(
                 current_text, v_data.WORD_BROCHURE_ADDRESS, type_name = "word_brochure")
-            
+            self.Current_chosen_word.setText(current_text)
         
         else:   raise Exception("Slots being used invalidly.")
     
     def Play_button_clicked(self):
-        pass
+        audio_name = self.current_word_data["audio"]
+        audio_path = os.path.join(v_data.AUDIO_ADDRESS,audio_name)
+        # print(audio_path)
+        # print(os.path.exists(audio_path))
+        audio_url = QUrl.fromLocalFile(audio_path)
+        audio_content = QMediaContent(audio_url)   
+        self.player.setMedia(audio_content)
+        self.player.setVolume(80) 
+        self.player.play()
     
     def Back_button_clicked(self):  self.close()
+    
+    def set_all_buttons_enabled(self, enabled: bool):        
+        for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
     
     def closeEvent(self, event):
         
