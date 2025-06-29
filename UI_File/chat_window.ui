@@ -1,20 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Chat</class>
- <widget class="QWidget" name="Chat">
+ <class>ChatWindow</class>
+ <widget class="QWidget" name="ChatWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>500</height>
+    <height>550</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <property name="windowTitle">
+   <string>AI智能对话助手</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    background-color: #f8f9ff;
+    font-family: 'Microsoft YaHei UI', sans-serif;
+}
+
+QLabel#title_label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e8ff;
+}
+
+QTextBrowser {
+    background-color: white;
+    border: 1px solid #e0e8ff;
+    border-radius: 10px;
+    font-size: 15px;
+    padding: 15px;
+    color: #333333;
+}
+
+QLineEdit {
+    background-color: white;
+    border: 1px solid #dce1e6;
+    border-radius: 15px;
+    padding: 10px 15px;
+    font-size: 15px;
+}
+
+QPushButton {
+    background-color: #5b7cfa;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #4a6cf7;
+}
+
+QPushButton:pressed {
+    background-color: #3a5af5;
+}
+
+QComboBox {
+    background-color: white;
+    border: 1px solid #dce1e6;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+#btn_back {
+    background-color: #a0aec0;
+}
+
+#btn_send {
+    font-weight: bold;
+}</string>
+  </property>
+  <layout class="QVBoxLayout" name="main_layout">
+   <property name="spacing">
+    <number>10</number>
+   </property>
+   <property name="leftMargin">
+    <number>15</number>
+   </property>
+   <property name="topMargin">
+    <number>15</number>
+   </property>
+   <property name="rightMargin">
+    <number>15</number>
+   </property>
+   <property name="bottomMargin">
+    <number>15</number>
+   </property>
+   
+   <!-- 标题区域 -->
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <widget class="QLabel" name="title_label">
+     <property name="text">
+      <string>AI 智能对话助手</string>
+     </property>
+     <property name="objectName">
+      <string>title_label</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   
+   <!-- 模型选择区域 -->
+   <item>
+    <layout class="QHBoxLayout" name="model_layout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="model_label">
        <property name="text">
         <string>对话对象:</string>
        </property>
@@ -22,9 +126,15 @@
      </item>
      <item>
       <widget class="QComboBox" name="combo_chat_type">
+       <!-- 修改点：将选项改为 DeepSeek 和 大喷子 -->
        <item>
         <property name="text">
          <string>DeepSeek</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>大喷子</string>
         </property>
        </item>
       </widget>
@@ -32,7 +142,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -44,33 +154,37 @@
      </item>
     </layout>
    </item>
+   
+   <!-- 聊天区域 -->
    <item>
-    <widget class="QTextBrowser" name="text_chat">
-     <property name="styleSheet">
-      <string notr="true">background-color: #FFFFFF;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-font-size: 18px;</string>
-     </property>
-    </widget>
+    <widget class="QTextBrowser" name="text_chat"/>
    </item>
+   
+   <!-- 输入区域 -->
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="input_layout">
      <item>
       <widget class="QLineEdit" name="input_message">
-       <property name="styleSheet">
-        <string notr="true">border: 1px solid #CCCCCC;
-border-radius: 5px;
-padding: 5px;</string>
+       <property name="placeholderText">
+        <string>输入您的问题...</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>40</height>
+        </size>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btn_send">
+       <property name="objectName">
+        <string>btn_send</string>
+       </property>
        <property name="minimumSize">
         <size>
-         <width>60</width>
-         <height>0</height>
+         <width>80</width>
+         <height>40</height>
         </size>
        </property>
        <property name="text">
@@ -80,12 +194,14 @@ padding: 5px;</string>
      </item>
     </layout>
    </item>
+   
+   <!-- 返回按钮 -->
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="bottom_layout">
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -97,6 +213,15 @@ padding: 5px;</string>
      </item>
      <item>
       <widget class="QPushButton" name="btn_back">
+       <property name="objectName">
+        <string>btn_back</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>35</height>
+        </size>
+       </property>
        <property name="text">
         <string>返回</string>
        </property>

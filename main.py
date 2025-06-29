@@ -2,12 +2,12 @@ import sys
 from qasync import QEventLoop
 import asyncio
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
-from PyQt5.QtCore import Qt, QPoint,QTimer
-from PyQt5.QtGui import QPainter, QColor, QPen
+from PyQt5.QtCore import Qt, QPoint, QTimer
+from PyQt5.QtGui import QPainter, QColor, QPen, QGuiApplication, QScreen, QPixmap, QClipboard
 from UI_File.floating_window_ui import Ui_FloatPet
 from UI_File.screen_translate_ui import Ui_Translation
 from UI_File.chat_window_ui import Ui_Chat
-from translator_functions import translate,ScreenSelector_For_ScreenSelect,ScreenSelector_For_Translator
+from translator_functions import translate, ScreenSelector_For_ScreenSelect, ScreenSelector_For_Translator
 
 from Reverse_Section.reverse_programme import Language_Learning_Widget
 import Reverse_Section.reverse_data_storage as v_data
@@ -25,6 +25,7 @@ class FloatPet(QWidget, Ui_FloatPet):
         self.btn_study.clicked.connect(self.show_study)
         self.btn_translation.clicked.connect(self.show_translation)
         self.btn_chat.clicked.connect(self.show_chat)
+        self.btn_screenshot.clicked.connect(self.take_screenshot)  # 新增截屏功能
         
         # 存储功能窗口引用
         self.study_window = None
@@ -34,16 +35,12 @@ class FloatPet(QWidget, Ui_FloatPet):
         # 初始化位置
         self.dragging = False
         self.offset = QPoint()
-        
-        # 设置拖动区域样式
-        self.drag_area.setStyleSheet("""
-            QLabel {
-                background-color: #5CACEE;
-                border-top-left-radius: 10px;
-                border-top-right-radius: 10px;
-                border-bottom: 1px solid #3A5FCD;
-            }
-        """)
+
+    def mousePressEvent(self, event):
+    # 整个窗口都可拖动（移除原有的区域限制）
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            self.offset = event.globalPos() - self.pos()
         
     def paintEvent(self, event):
         """绘制圆角和边框"""
@@ -54,8 +51,7 @@ class FloatPet(QWidget, Ui_FloatPet):
         painter.drawRoundedRect(self.rect(), 10, 10)
         
     def mousePressEvent(self, event):
-        # 只在拖动区域允许拖动
-        if event.button() == Qt.LeftButton and self.drag_area.geometry().contains(event.pos()):
+        if event.button() == Qt.LeftButton:
             self.dragging = True
             self.offset = event.globalPos() - self.pos()
     
@@ -66,26 +62,43 @@ class FloatPet(QWidget, Ui_FloatPet):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = False
-            # 添加边缘吸附逻辑
-            self.attach_to_edge()
+            self.attach_to_edge()  # 释放鼠标时进行边缘吸附
     
     def attach_to_edge(self):
-        # 边缘吸附实现
+        # 边缘吸附实现（改进版）
         screen_rect = QApplication.desktop().availableGeometry()
         window_rect = self.geometry()
         
-        # 左边缘吸附
-        if abs(window_rect.left() - screen_rect.left()) < 20:
-            self.move(screen_rect.left(), window_rect.top())
-        # 右边缘吸附
-        elif abs(screen_rect.right() - window_rect.right()) < 20:
-            self.move(screen_rect.right() - window_rect.width(), window_rect.top())
-        # 上边缘吸附
-        elif abs(window_rect.top() - screen_rect.top()) < 20:
-            self.move(window_rect.left(), screen_rect.top())
-        # 下边缘吸附
-        elif abs(screen_rect.bottom() - window_rect.bottom()) < 20:
-            self.move(window_rect.left(), screen_rect.bottom() - window_rect.height())
+        # 计算窗口到各边缘的距离
+        left_dist = window_rect.left() - screen_rect.left()
+        right_dist = screen_rect.right() - window_rect.right()
+        top_dist = window_rect.top() - screen_rect.top()
+        bottom_dist = screen_rect.bottom() - window_rect.bottom()
+        
+        # 设置吸附阈值
+        threshold = 20
+        
+        # 确定新的位置（初始为当前位置）
+        new_x = window_rect.x()
+        new_y = window_rect.y()
+        
+        # 检查是否需要水平吸附
+        if min(left_dist, right_dist) < threshold:
+            if left_dist < right_dist:
+                new_x = screen_rect.left()  # 吸附到左边缘
+            else:
+                new_x = screen_rect.right() - window_rect.width()  # 吸附到右边缘
+        
+        # 检查是否需要垂直吸附
+        if min(top_dist, bottom_dist) < threshold:
+            if top_dist < bottom_dist:
+                new_y = screen_rect.top()  # 吸附到上边缘
+            else:
+                new_y = screen_rect.bottom() - window_rect.height()  # 吸附到下边缘
+        
+        # 如果位置有变化则移动窗口
+        if new_x != window_rect.x() or new_y != window_rect.y():
+            self.move(new_x, new_y)
     
     def show_study(self):
         self.hide()
@@ -107,6 +120,36 @@ class FloatPet(QWidget, Ui_FloatPet):
     
     def show_float_pet(self):
         self.show()
+        
+    # 新增截屏功能
+    def take_screenshot(self):
+        self.hide()  # 隐藏桌宠窗口
+        self.screen_selector = ScreenSelector_For_ScreenSelect(
+            on_finished_callback=self.handle_screenshot_finished
+        )
+        self.screen_selector.showFullScreen()
+        
+    def handle_screenshot_finished(self, selected_rect):
+        """处理截图完成后的操作"""
+        # 显示桌宠窗口
+        self.show()
+        
+        # 检查是否选择了有效区域
+        if not selected_rect.isValid() or selected_rect.isEmpty():
+            QMessageBox.information(self, "截屏", "截图已取消")
+            return
+            
+        # 截取屏幕
+        screen = QGuiApplication.primaryScreen()
+        screenshot = screen.grabWindow(0, selected_rect.x(), selected_rect.y(), 
+                                      selected_rect.width(), selected_rect.height())
+        
+        # 复制到剪贴板
+        clipboard = QApplication.clipboard()
+        clipboard.setPixmap(screenshot)
+        
+        # 显示成功消息
+        QMessageBox.information(self, "截屏", "截图已复制到剪贴板！")
 
 class StudyWindow(Language_Learning_Widget):
     def __init__(self, float_pet):
@@ -237,7 +280,7 @@ class ChatWindow(QWidget, Ui_Chat):
             # 在聊天记录中添加用户消息
             self.text_chat.append(f"<b>你:</b> {message}")
             self.input_message.clear()
-            self.text_chat.append(f"<b>{chat_type}:</b> {"思考中"}")
+            self.text_chat.append(f"<b>{chat_type}:</b> 思考中...")
             # 模拟AI回复
             # if chat_type == "DeepSeek":
             #     reply = "DeepSeek: 你好！我是DeepSeek助手，很高兴为你服务。"
