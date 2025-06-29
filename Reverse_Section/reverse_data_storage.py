@@ -2,6 +2,8 @@ AUDIO_ADDRESS = r"D:\Desk_Pet_Data_Storage\Voice_Bank"
 DEFINITION_ADDRESS = r"D:\Desk_Pet_Data_Storage\Text_Data\definition.txt"
 TRANSLATION_ADDRESS = r"D:\Desk_Pet_Data_Storage\Text_Data\translation.txt"
 WORD_BANK_ADDRESS = r"D:\Desk_Pet_Data_Storage\Word_Data\word_bank.db"
+WORD_BROCHURE_ADDRESS = r"D:\Desk_Pet_Data_Storage\Word_Data\word_brochure.db"
+TEST_RESULT_ADDRESS = r"D:\Desk_Pet_Data_Storage\Test_Data"
 
 INITIAL_ADDRESS = r"D:\Python_Audio_Processing\Word_bank\Initialized_Word_Bank.txt"
 TEST_ADDRESS = r"D:\Python_Audio_Processing\Word_bank\Test_Word_Bank.txt"

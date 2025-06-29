@@ -12,13 +12,13 @@ import pydub
 import sqlite3  # 用aiosqlite来代替sqlite3来实现异步写入.db数据库
 import aiosqlite as SQL
 
-import translate as ts
 from bs4 import BeautifulSoup
 
 
 from . import reverse_data_storage as v_data
 
-INITIAL_SCALE = 5000
+INITIAL_SCALE = 50
+    # 调试可以改这个大小
 TEST_SCALE = 20
 
 App_ID = "6951303"
@@ -340,9 +340,37 @@ async def get_data_from_database(text, address = str(), type_name = str()):
         
         return dict(res) if res else None
     
-
     
-def initialize_data(mode = None):
-    pass
+async def get_data_size(address = str(), type_name = str()):
 
+    async with SQL.connect(address) as db:
+        db.row_factory = SQL.Row
+        cursor = await db.execute(f"SELECT COUNT(*) FROM {type_name}")
+        result = await cursor.fetchone()
+        await cursor.close()
+        return result[0] if result[0] is not None else 0
     
+    
+
+async def check_data_validity(address = str()) -> bool:
+    
+    if not os.path.isfile(address):    return None
+    
+    table_name = "word_bank"
+    required_traits = ["id","word","translation","definition"
+                       ,"audio","picture","enable_english_mark"]
+
+    async with SQL.connect(address) as db:
+        cursor = await db.execute(f"PRAGMA table_info({table_name})")
+        columns_info = await cursor.fetchall()
+        await cursor.close()
+
+        existing_traits = {col[1] for col in columns_info}  # set数据结构
+        missing = [trait for trait in required_traits if trait not in existing_traits]
+        if missing:    return None
+        else:   
+            cursor_2 = await db.execute(f"SELECT word FROM {table_name}")
+            word_list = await cursor_2.fetchall()
+            await cursor_2.close()
+            
+            return [row[0] for row in word_list]
