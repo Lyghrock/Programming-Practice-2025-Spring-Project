@@ -10,9 +10,10 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout,
     QPushButton, QTextEdit, QLabel, 
     QMessageBox, QInputDialog, QFileDialog,
+    QListWidget, QListWidgetItem
 )
 from PyQt5.QtCore import (
-    QTimer, Qt, QUrl
+    QTimer, Qt, QUrl, pyqtSignal
 )
 from PyQt5.QtGui import (
     QPixmap, QIcon
@@ -48,11 +49,21 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
         self.setupUi(self)
         self.Upper_parent = parent
         
+        self.Test_Widget = Test_Widget(parent = self)
+        self.Search_Widget = Search_Widget(parent = self)
+        self.Word_Brochure_Widget = Word_Bank_Widget(parent = self)
+        
         # 维护一个计数进度条类，动态更新下载进度————（控件由loadUi实现）
         self.progress_dialog = v_data.ProgressDialog(parent = self)
         self.set_all_buttons_enabled(False)
         
         v_data.Initial_Word_list = v_func.load_word_list()
+       
+        self.Test_button.clicked.connect(self.Test_button_clicked)
+        self.Search_button.clicked.connect(self.Search_button_clicked)
+        self.Brochure_button.clicked.connect(self.Brochure_button_clicked)
+        self.Exit_button.clicked.connect(self.Exit_button_clicked)
+        self.Mode_button.clicked.connect(self.Mode_button_clicked)
         
         QTimer.singleShot(0, lambda : asyncio.ensure_future(self.initialization()))
     
@@ -68,8 +79,6 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
     # 调用爬虫程序从汉典(http网址)中爬取definition，存入.txt
         defin_map = await self.initialize_word_property("Definition",
             v_func.text_to_definition, v_data.DEFINITION_ADDRESS, "无")
-        
-        await asyncio.sleep(0.01)
         
     # 调用GoogleTranslator翻译文本
         trans_map = await self.initialize_word_property("Translation",
@@ -208,37 +217,29 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
             self.progress_dialog.update_progress(percent = percentage, trait = ongoing)
         
     
-    def on_Test_button_clicked(self):
+    def Test_button_clicked(self):
         self.hide()
         self.set_all_buttons_enabled(False)
-        self.Test_Widget = Test_Widget(parent = self)
         self.Test_Widget.show()
     
-    def on_Search_button_clicked(self):
+    def Search_button_clicked(self):
         self.hide()
-        self.set_all_buttons_enabled(False)
-        self.Test_Widget = Search_Widget(parent = self)
-        self.Test_Widget.show()
+        self.Search_Widget.show()
     
-    def on_Brochure_button_clicked(self):
+    def Brochure_button_clicked(self):
         self.hide()
-        self.set_all_buttons_enabled(False)
-        self.Test_Widget = Word_Bank_Widget(parent = self)
-        self.Test_Widget.show()
+        self.Word_Brochure_Widget.show()
     
-    def on_Exit_button_clicked(self):
+    def Exit_button_clicked(self):
         reply = QMessageBox.question(
-            self,
-            title = "Confirmation",
-            text = "Be sure that you've saved your Data for further use!",
-            buttons = QMessageBox.Yes | QMessageBox.No,
-            defaultButton = QMessageBox.No
+            self, "Confirmation",   "Sure to exit? ",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         if reply == QMessageBox.Yes:    
             self.Upper_parent.show_float_pet()
             self.close()
             
-    def on_Mode_button_clicked():
+    def Mode_button_clicked(self):
         pass    # 模式转换接口，需要配合中英文逻辑
     
     def set_all_buttons_enabled(self, enabled: bool):        
@@ -246,18 +247,14 @@ class Language_Learning_Widget(QWidget,Ui_Main_Window):
     
     def closeEvent(self, event):
         reply = QMessageBox.question(
-            self,
-            title = "Confirmation",
-            text = "Sure to exit? ",
-            buttons = QMessageBox.Yes | QMessageBox.No,
-            defaultButton = QMessageBox.No
+            self, "Confirmation",   "Sure to exit? ",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         if reply == QMessageBox.Yes:    
             self.Upper_parent.show_float_pet()
             event.accept()
         else:   event.ignore()
         
-
 class Test_Widget(QWidget,Ui_Test_Window):
     
     def __init__(self, parent = None, flags = Qt.WindowFlags()):
@@ -267,7 +264,12 @@ class Test_Widget(QWidget,Ui_Test_Window):
         self.result_display = None
         self.pause_display = None
         
-        self.test_data_stroage = dict()
+        # import inspect
+        # for frame in inspect.stack():
+        #     print(f"{frame.filename}:{frame.lineno} - {frame.function}")
+        # print(f"[TestWidget Created] id={id(self)}")
+        
+        self.test_data_storage = dict()
         self.questions = list()
         self.player = QMediaPlayer(self)
         
@@ -280,14 +282,23 @@ class Test_Widget(QWidget,Ui_Test_Window):
         for item in ['A','B','C','D']:
             current_button_name = item + "_button"
             current_button = self.findChild(QPushButton,current_button_name)
-            current_button.clicked.connect(self.on_answer_button_clicked)
+            current_button.clicked.connect(self.answer_button_clicked)
             self.option_button_list.append(current_button)
-        self.Add_button.clicked.connect(self.on_Add_button_clicked)
-        self.Play_current_button.clicked.connect(self.on_Play_current_button_clicked)
-        self.Pause_button.clicked.connect(self.on_Pause_button_clicked)
+        self.Add_button.clicked.connect(self.Add_button_clicked)
+        self.Play_current_button.clicked.connect(self.Play_current_button_clicked)
+        self.Pause_button.clicked.connect(self.Pause_button_clicked)
         
-        asyncio.create_task(self.choose_mode())
-        
+        self.test_mode = self.choose_mode()
+        self.test_display_mode = self.choose_display_mode()
+        params_for_init = self.prepare_for_initialize_params(self.test_mode)
+        if params_for_init is None:
+            self.Upper_parent.show()
+            self.set_all_buttons_enabled(False)
+            self.close()    # 保证一定有数据才开始test
+            return
+    
+        asyncio.create_task(self.initialize(*params_for_init))
+    
         self.time_keeper_initialize()
         
     def update_current_time(self):
@@ -316,24 +327,28 @@ class Test_Widget(QWidget,Ui_Test_Window):
                     aspectRatioMode = Qt.KeepAspectRatio,
                     transformMode = Qt.SmoothTransformation
                 )
-                
                 self.button.setIcon(QIcon(scaled_pixmap))
                 self.button.setIconSize(scaled_pixmap.size())  
-            
-            else:    button.setText(self.questions[self.current_idx][1][i]["definition"])
+            else:    
+                button.setText(self.questions[self.current_idx][1][i][self.test_display_mode])
+                if self.test_display_mode == "definition":
+                    button.setText(button.text()[:15])
     
-    def on_Play_current_button_clicked(self):
-        audio_path = self.test_data_stroage[self.questions[self.current_idx][0]]["audio"]
+    def Play_current_button_clicked(self):
+        audio_name = self.test_data_storage[self.questions[self.current_idx][0]]["audio"]
+        audio_path = os.path.join(v_data.AUDIO_ADDRESS,audio_name)
+        # print(audio_path)
+        # print(os.path.exists(audio_path))
         audio_url = QUrl.fromLocalFile(audio_path)
         audio_content = QMediaContent(audio_url)   
         self.player.setMedia(audio_content)
         self.player.setVolume(80) 
         self.player.play()
     
-    def on_Add_button_clicked(self):
+    def Add_button_clicked(self):
         pass
     
-    def on_Pause_button_clicked(self):
+    def Pause_button_clicked(self):
         
         self.set_all_buttons_enabled(False)
         self.timer.stop()   # Timer停止计时
@@ -341,7 +356,7 @@ class Test_Widget(QWidget,Ui_Test_Window):
                     if not self.pause_display else self.pause_display)
         self.pause_display.show()
     
-    def on_answer_button_clicked(self):
+    def answer_button_clicked(self):
         
         current_click = self.sender()
         # print(current_click.objectName())
@@ -353,7 +368,7 @@ class Test_Widget(QWidget,Ui_Test_Window):
         if correct_ans == current_ans:  self.correct_count += 1
         self.current_idx += 1 
         
-        if self.current_idx == len(self.question):
+        if self.current_idx == len(self.questions):
             self.set_all_buttons_enabled(False)
             if not self.result_display:    
                 self.result_display = Finish_Test_Widget(parent = self, 
@@ -364,45 +379,39 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
         else:    # update_Progress来更新进度条
             proportion = math.floor( 100 * self.current_idx / len(self.questions))
             self.Test_Progress.setValue(proportion)
+            self.update_button_content()
     
-    @asyncSlot()
-    async def choose_mode(self):
+    def choose_mode(self):
+        
+        print("choose mode here!")
         
         mode_selection = [
             "Random word-bank",
             "Selected words",   # 用于特殊装载, 留接口可以用
             "Words from my Brochure"
         ]
-        current_mode, _ = QInputDialog.getitem(self, "Initializing......", 
+        current_mode, _ = QInputDialog.getItem(self, "Initializing......", 
             "Please choose your preferred mode.", mode_selection, 0, False )
         if not _ or not current_mode:     
-            self.Upper_parent.show_self()
+            self.Upper_parent.show()
             self.close()
+            
+        return current_mode
     
-        jdg = await self.initialize(mode = current_mode)
-            # 根据不同模式加载不同体量的词库，并且随机选择choices，存入questions和data_storage
-        if not jdg:    
-            self.Upper_parent.show_self()
-            self.set_all_buttons_enabled(False)
-            self.close()    # 保证一定有数据才开始test
-        
+    def choose_display_mode(self):
         # 初始化按钮和test的选择模式：
         current_display_mode, _2 = QInputDialog.getItem(self, "Choosing Test Icon...",
             "Please choose your preferred traits for test.", 
             ["definition", "translation", "word", "picture"], 0, False)
         if not _2 or not current_display_mode:     
-            self.Upper_parent.show_self()
+            self.Upper_parent.show()
             self.close()
-        self.test_display_mode = current_display_mode
 
+        return current_display_mode
+    
+    def prepare_for_initialize_params(self, mode = None):
         
-        
-    async def initialize(self, mode = None):
-        assert mode is not None, "Please select mode before you enter the test."
-        
-        slicing = None
-        test_key = None
-        test_address = None
+        assert mode, "Please select a mode first."
         total_l = len(v_data.Initial_Word_list)
         
         if mode == "Random word-bank":
@@ -410,18 +419,18 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             # 输入一个合理的random size: 
             jdg, jdg_count = False, 0
             while jdg_count < 3:
-                word_bank_size, jdg = QInputDialog.getInt(self, "Random Slicing Size"
+                size, jdg = QInputDialog.getInt(self, "Random Slicing Size"
                     , "Please input a size for your upcoming test.", 
-                    min = 20, max = math.floor(len(total_l)/4))
+                    min = 20, max = math.floor(total_l/4))
                 jdg_count += 1
                 if jdg:   break
             else:   
                 print("Fail to initialize my random word bank.")
-                return False
+                return None
             
-            slicing = random.sample(range(0,total_l),word_bank_size)
+            slicing = random.sample(range(0,total_l),size)
             test_key = v_data.Initial_Word_list
-            test_address = v_data.INITIAL_ADDRESS
+            test_address = v_data.WORD_BANK_ADDRESS
             
         elif mode == "Selected words":
             # NOTICE: 此处并非任何.db文件都可以被load，将检测其是否具有我的.db形式
@@ -432,29 +441,36 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
                 test_address, _ = QFileDialog.getOpenFileName(self, "Please Choose your word bank",
                         "", "Database Files (*.db);;All Files (*)"  )
                 jdg_count += 1
-                test_key = await v_func.check_data_validity(test_address)
+                test_key = v_func.check_data_validity(test_address,"word_bank")
                 if test_key:    break
                 else:    QMessageBox.warning(self, "Error", "Please select a valid .db file with correct format.")
             else:   
                 print("Fail to get a valid path.")
-                return False
+                return None
             
             # 成功定位则按照正常流程提供中间变量
-            selected_size = await v_func.get_data_size(address = test_address, type_name = "word_bank")
-            slicing = list(range(0,selected_size))
+            size = v_func.get_data_size(address = test_address, type_name = "word_bank")
+            slicing = list(range(0,size))
                     
         elif mode == "Words from my Brochure":
-            test_key = await v_func.check_data_validity(v_data.WORD_BROCHURE_ADDRESS)
+            test_key = v_func.check_data_validity(v_data.WORD_BROCHURE_ADDRESS, "word_brochure")
             if test_key:
                 test_address = v_data.WORD_BROCHURE_ADDRESS
-                brochure_size = await v_func.get_data_size(address = test_address, type_name = "word_bank")
-                slicing = list(range(0,brochure_size))
+                size = v_func.get_data_size(address = test_address, type_name = "word_bank")
+                slicing = list(range(0,size))
             else:   
                 print("Word Brochure Stroage is invalid, please check.")
-                return False
+                return None
     
         else:   raise Exception("It seems you didn't select mode correctly???")
-            
+        
+        return slicing, test_key, test_address, size
+             
+    async def initialize(self, *params):
+        
+        mode = self.test_mode
+        slicing ,test_key ,test_address ,word_bank_size = params
+        
         # 从.db里取出数据，写入data_storage
         assert slicing, "Invalid Slicing Initialzation. Programme Exit."
         random.shuffle(slicing)    
@@ -462,43 +478,42 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             current_key = test_key[index]
             current_data = await v_func.get_data_from_database(current_key,
                 address = test_address, type_name = "word_bank")
-            self.test_data_stroage.setdefault(current_key, current_data)
+            self.test_data_storage.setdefault(current_key, current_data)
             
         # random为每个问题生成4个answer装入question:
-        for current in self.test_data_stroage.values():
+        for current in self.test_data_storage.values():
             question_word = current["word"]
-            options = [self.test_data_stroage[random.randint(
-                        0,word_bank_size)] for i in range(3)]
-            options.append(current)
+            options = [self.test_data_storage[test_key[idx]]
+                    for idx in random.sample(slicing, 4)]
+            options[-1] = current if current not in options else options[-1]
             assert len(options) == 4, "Werid??? Length of options are invalid."
             random.shuffle(options)
             self.questions.append((question_word, options))
         
-        assert self.questions and self.test_data_stroage, "Blank occurs when data loading."
-        return True
+        assert self.questions and self.test_data_storage, "Blank occurs when data loading."
+        self.update_button_content()
     
     def time_keeper_initialize(self):
+       
         self.timer = QTimer(self)
         self.sec_count = 0
         self.min_count = 0
         self.timer.timeout.connect(self.update_current_time)
         self.timer.start(1000)
-        
-
+    
     def set_all_buttons_enabled(self, enabled: bool):        
         for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
         
     def closeEvent(self, event):
         reply = QMessageBox.question(
-            self,
-            title = "Confirmation",
-            text = "Be sure that you want to Abandon the current Test!",
-            buttons = QMessageBox.Yes | QMessageBox.No,
-            defaultButton = QMessageBox.No
+            self, "Confirmation",
+            "Be sure that you want to exit the current Test!",
+            QMessageBox.Yes | QMessageBox.No,   QMessageBox.No
         )
         # Remember to eliminate the generated temp_data_storage
         if reply ==  QMessageBox.Yes:
-            self.Upper_parent.show_self()
+            self.Upper_parent.show()
+            self.Upper_parent.set_all_buttons_enabled(True)
             event.accept()
         
      
@@ -507,30 +522,29 @@ class Finish_Test_Widget(QWidget,Ui_Finish_Test):
     def __init__(self, parent = None, flags = Qt.WindowFlags(), result = None):
         super().__init__()
         self.setupUi(self)  
-        self.Upper_parent = parent   
+        self.Upper_parent = parent 
+        self.close_source = None  
       
         if result is None:  
                 # 此时代表是由pause按键触发的断点
-            self.Save_button.clicked.connect(self.on_Resume_button_clicked)
+            self.Save_button.clicked.connect(self.Resume_button_clicked)
             self.Save_button.setText("Resume")
             self.Test_result.setText(f"The Test is paused at question{self.Upper_parent.current_idx}.")
         else:   
                 # 此时代表是由游戏结束触发的保存逻辑
-            self.Save_button.clicked.connect(self.on_Save_button_clicked)
+            self.Save_button.clicked.connect(self.Save_button_clicked)
             self.Test_result.setText(result)
             
-        self.Abandon_button.clicked.connect(self.on_Abandon_button_clicked)  
+        self.Abandon_button.clicked.connect(self.Abandon_button_clicked)  
       
-    def on_Resume_button_clicked(self):
-        
-        self.Upper_parent.timer.start(1000)
-        self.Upper_parent.set_all_buttons_enabled(True)
-        self.Upper_parent.show()
+    def Resume_button_clicked(self):    
+        self.close_source = None
         self.close()
       
     @asyncSlot()
-    async def on_Save_button_clicked(self):
+    async def Save_button_clicked(self):
         
+        self.close_source = "Save"
         jdg_count = 0
         while jdg_count < 10:
             file_name, _ = QInputDialog.getText(self, 
@@ -573,59 +587,143 @@ class Finish_Test_Widget(QWidget,Ui_Finish_Test):
         except Exception as error:  print(f"Error occurs when storing .db: {error}")
 
         self.Upper_parent.Upper_parent.show()
+        self.Upper_parent.set_all_buttons_enabled(True)
         self.Upper_parent.close()
         self.close()
     
-    def on_Abandon_button_clicked(self):
+    def Abandon_button_clicked(self):
         
+        self.close_source = "Abandon"
         reply = QMessageBox.question(
-            self,
-            title = "Confirmation",
-            text = "Be sure that you want to Abandon the current Test!",
-            buttons = QMessageBox.Yes | QMessageBox.No,
-            defaultButton = QMessageBox.No
+            self,   "Confirmation",
+            "Be sure that you want to Abandon the current Test!",
+            QMessageBox.Yes | QMessageBox.No,    QMessageBox.No
         )
         if reply == QMessageBox.Yes:    
             self.Upper_parent.Upper_parent.show()
+            self.Upper_parent.set_all_buttons_enabled(True)
             self.Upper_parent.close()
             self.close()
     
-    
     def closeEvent(self, event):
         
-        self.Upper_parent.timer.start(1000)
-        self.Upper_parent.set_all_buttons_enabled(True)
-        self.Upper_parent.show()
+        if self.close_source is not None:   pass 
+        else:
+            self.Upper_parent.timer.start(1000)
+            self.Upper_parent.show()
+        
         event.accept()
 
 class Search_Widget(QWidget,Ui_Word_Search):
     
+    search_Ready = pyqtSignal(object)
+    
     def __init__(self, parent = None, flags = Qt.WindowFlags()):
         super().__init__()
         self.setupUi(self)  
-        self.Upper_parent = parent   
+        self.Upper_parent = parent  
+        self.search_Ready.connect(self.show_search_result) 
         
-        self.Definition
-        self.Translation
+        self.current_word_data = dict()
+        self.player = QMediaPlayer(self)
         
-    def on_Search_word_button_clicked():
+        self.Search_word_button.clicked.connect(self.Search_word_button_clicked)
+        self.Play_button.clicked.connect(self.Play_button_clicked)
+        self.Add_button.clicked.connect(self.Add_button_clicked)
+        self.Back_button.clicked.connect(self.Back_button_clicked)
+        
+    @asyncSlot() 
+    async def Search_word_button_clicked(self):
+        current_input = self.Input_word.text()
+        if not bool(re.fullmatch(r'[\u4e00-\u9fff]+', current_input)):
+            self.search_Ready.emit("Unsupported characters. Only Chinese!")
+            return
+        if current_input not in v_data.Initial_Word_list:
+            
+            params_for_search = {
+                "audio" : {current_input : None }, 
+                "definition" : {current_input : "无" }, 
+                "translation" : {current_input : "N/A" },
+                "picture" : {current_input : None } , 
+                "enable_english_mark" : {current_input : 0 }
+            }
+            
+            async with aiohttp.ClientSession(headers=v_data.REQUEST_HEADERS) as request_agent:
+                
+                # 先处理audiofile的获取：
+                token = await v_func.get_voice_token(session=request_agent)
+                if not token:
+                    self.search_Ready.emit("Fail to load API_url when getting audio, "
+                            "token unaccessible. Please check your Account.")
+                    return
+                try:
+                    judge_res = await v_func.text_to_speech( request_agent,
+                        token, text = current_input, lang = "zh", default_voice_mode = 1,
+                        filename = f"{current_input}_zh.mp3", adjuster = asyncio.Lock()
+                    )
+                    if judge_res:    params_for_search["audio"][
+                                        current_input] = f"{current_input}_zh.mp3"
+                except Exception as error:
+                    self.search_Ready.emit(f"One-time Text_to_Voice Error: {error}.")
+                    
+                # 再处理definition的获取
+                try:
+                    def_str = await v_func.text_to_definition(request_agent, current_input) 
+                    params_for_search["definition"][
+                        current_input] = def_str if def_str else "无"
+                except Exception as error:
+                    self.search_Ready.emit(f"One-time Text_to_definition Error: {error}")
+                    
+                v_func.save_loaded_data(params_for_search["definition"], v_data.DEFINITION_ADDRESS)
+                
+                # 再获得translation:
+                try:
+                    translated = await v_func.translate_text(current_input)
+                    params_for_search["translation"][current_input] = translated 
+                except Exception as error:  
+                    self.search_Ready.emit(f"One-time Translation Error: {error}")
+                    
+                v_func.save_loaded_data(params_for_search["translation"], v_data.TRANSLATION_ADDRESS)
+                  
+            # 更新.db数据库
+            try:    await v_func.update_database( address = v_data.WORD_BANK_ADDRESS, 
+                    parameters_dict = params_for_search, type_name = "word_bank")
+            except Exception as error:  print(f"Error occurs when updating .db: {error}")
+            
+            # print(params_for_search)
+
+        self.current_word_data = await v_func.get_data_from_database(
+            current_input, v_data.WORD_BANK_ADDRESS, type_name = "word_bank")
+        self.search_Ready.emit(True)
+            
+    def show_search_result(self, result):
+        if isinstance(result, str):
+            QMessageBox.warning(self, "Warning", result)
+        elif result == True:
+            assert self.current_word_data, "Data Load Error when searching"
+            self.Definition.setText(f"Definition: {self.current_word_data["definition"][:20]}")
+            self.Translation.setText(f"Translation: {self.current_word_data["translation"]}")
+    
+    def Play_button_clicked(self):
+        audio_name = self.current_word_data["audio"]
+        audio_path = os.path.join(v_data.AUDIO_ADDRESS,audio_name)
+        # print(audio_path)
+        # print(os.path.exists(audio_path))
+        audio_url = QUrl.fromLocalFile(audio_path)
+        audio_content = QMediaContent(audio_url)   
+        self.player.setMedia(audio_content)
+        self.player.setVolume(80) 
+        self.player.play()
+    
+    def Add_button_clicked(self):
         pass
     
-    def on_Play_button_clicked():
-        pass
-    
-    def on_Add_button_clicked():
-        pass
-    
-    def on_Back_button_clicked():
-        pass
+    def Back_button_clicked(self):    self.close()
     
     
     def closeEvent(self, event):
         
-        # Remember to eliminate the generated temp_data_storage
-        
-        self.Upper_parent.show_self()
+        self.Upper_parent.show()
         event.accept()
    
         
@@ -634,22 +732,64 @@ class Word_Bank_Widget(QWidget,Ui_My_Word_Brochure):
     def __init__(self, parent = None, flags = Qt.WindowFlags()):
         super().__init__()
         self.setupUi(self)  
-        self.Upper_parent = parent   
+        self.Upper_parent = parent  
         
-    def on_word_select_clicked():
+        self.current_word_data = dict()
+        self.brochure_text = None
+        self.player = QMediaPlayer(self)
+        
+        self.Word_bank.itemClicked.connect(self.word_select_clicked)
+        self.Word_bank.itemDoubleClicked.connect(self.word_select_double_clicked)
+        self.Load_button.clicked.connect(self.load_brochure_text)
+        self.Play_button.clicked.connect(self.Play_button_clicked)
+        self.Back_button.clicked.connect(self.Back_button_clicked)
+        
+        asyncio.create_task(self.get_brochure_text_data)
+        
+    async def get_brochure_text_data(self):
+        self.brochure_text = await v_func.get_data_from_database(
+            text = "word", address = v_data.WORD_BROCHURE_ADDRESS, 
+            type_name = "word_brochure", mode = "brochure")
+    
+    def load_brochure_text(self):
+        
+        text_list = self.brochure_text
+        assert text_list, "Unsuccessful .db data-reading."
+        self.Word_bank.clear()
+        for current_text in text_list:
+            temp_item = QListWidgetItem(current_text)
+            # 可以设置格式
+            self.Word_bank.addItem(temp_item)
+  
+    def word_select_double_clicked(self):
+        
+        selected_word = self.Word_bank.currentItem()
+        if selected_word:
+            current_text = selected_word.text()
+            self.Upper_parent.Search_button_clicked()
+            self.Upper_parent.Search_Widget.Input_word.setText(current_text)
+        
+        else:   raise Exception("Slots being used invalidly.")
+     
+    @asyncSlot()   
+    async def word_select_clicked(self):
+        
+        selected_word = self.Word_bank.currentItem()
+        if selected_word:
+            current_text = selected_word.text()
+            self.current_word_data = await v_func.get_data_from_database(
+                current_text, v_data.WORD_BROCHURE_ADDRESS, type_name = "word_brochure")
+            
+        
+        else:   raise Exception("Slots being used invalidly.")
+    
+    def Play_button_clicked(self):
         pass
     
-    def on_Play_button_clicked():
-        pass
-    
-    def on_Back_button_clicked():
-        pass
-    
+    def Back_button_clicked(self):  self.close()
     
     def closeEvent(self, event):
         
-        # Remember to eliminate the generated temp_data_storage
-        
-        self.Upper_parent.show_self()
+        self.Upper_parent.show()
         event.accept()
         

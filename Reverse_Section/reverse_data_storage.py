@@ -33,6 +33,6 @@ class ProgressDialog(QDialog, Ui_Progress_Keeper):
         self.setModal(True)
 
     def update_progress(self, percent,trait):
-        self.progress_bar.setValue(percent)
-        self.label.setText(f"Current Progress of {trait}: {percent}%")
+        self.progress_keeper.setValue(percent)
+        self.Annotations.setText(f"Current Progress of {trait}: {percent}%")
         
