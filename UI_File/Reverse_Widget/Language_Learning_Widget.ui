@@ -23,8 +23,115 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Main_Window</string>
+   <string>Language Learning Module</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">
+    /* 主窗口样式 */
+    QWidget#Main_Window {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+            stop:0 #f5f9ff, stop:1 #e6f0ff);
+        border: 1px solid #d0e0ff;
+        border-radius: 12px;
+    }
+    
+    /* 标题样式 */
+    QLabel#Title {
+        color: #2c3e50;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-weight: 600;
+        background: transparent;
+        text-align: center;
+    }
+    
+    /* 按钮通用样式 */
+    QPushButton {
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+            stop:0 #4a86e8, stop:1 #3a75d0);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        min-height: 40px;
+    }
+    
+    QPushButton:hover {
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+            stop:0 #5a96f8, stop:1 #4a85e0);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    QPushButton:pressed {
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+            stop:0 #3a75d0, stop:1 #2a65c0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 模式选择按钮特殊样式 */
+    QPushButton#Mode_button {
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+            stop:0 #6a5acd, stop:1 #5a4abc);
+        font-size: 14px;
+    }
+    
+    /* 退出按钮特殊样式 */
+    QPushButton#Exit_button {
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+            stop:0 #e74c3c, stop:1 #d62c1a);
+    }
+    
+    /* 主要功能按钮样式 */
+    QPushButton#Test_button, 
+    QPushButton#Search_button, 
+    QPushButton#Brochure_button {
+        font-size: 18px;
+        min-height: 80px;
+    }
+   </string>
+  </property>
+  
+  <!-- 背景装饰元素 -->
+  <widget class="QLabel" name="bg_decoration1">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>100</width>
+     <height>100</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+        background: transparent;
+        border: 2px solid rgba(74, 134, 232, 0.15);
+        border-radius: 50%;
+    </string>
+   </property>
+  </widget>
+  
+  <widget class="QLabel" name="bg_decoration2">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>400</y>
+     <width>70</width>
+     <height>70</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+        background: transparent;
+        border: 2px solid rgba(74, 134, 232, 0.15);
+        border-radius: 50%;
+    </string>
+   </property>
+  </widget>
+  
+  <!-- 原有控件 -->
   <widget class="QPushButton" name="Test_button">
    <property name="geometry">
     <rect>
@@ -38,6 +145,7 @@
     <string>Test</string>
    </property>
   </widget>
+  
   <widget class="QPushButton" name="Search_button">
    <property name="geometry">
     <rect>
@@ -51,6 +159,7 @@
     <string>Search</string>
    </property>
   </widget>
+  
   <widget class="QPushButton" name="Brochure_button">
    <property name="geometry">
     <rect>
@@ -61,9 +170,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>My_Word_Brichure</string>
+    <string>My Word Brochure</string>
    </property>
   </widget>
+  
   <widget class="QPushButton" name="Exit_button">
    <property name="geometry">
     <rect>
@@ -77,6 +187,7 @@
     <string>Exit</string>
    </property>
   </widget>
+  
   <widget class="QPushButton" name="Mode_button">
    <property name="geometry">
     <rect>
@@ -87,9 +198,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>Mode_Select</string>
+    <string>Mode Select</string>
    </property>
   </widget>
+  
   <widget class="QLabel" name="Title">
    <property name="geometry">
     <rect>
@@ -101,13 +213,11 @@
    </property>
    <property name="font">
     <font>
-     <family>Lucida Bright</family>
+     <family>Segoe UI</family>
      <pointsize>30</pointsize>
+     <weight>75</weight>
      <bold>true</bold>
     </font>
-   </property>
-   <property name="mouseTracking">
-    <bool>false</bool>
    </property>
    <property name="text">
     <string>Language
@@ -115,6 +225,21 @@
  Learning
 
    Module</string>
+   </property>
+  </widget>
+  
+  <!-- 装饰线条 -->
+  <widget class="QLabel" name="divider">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>50</y>
+     <width>1</width>
+     <height>400</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: rgba(74, 134, 232, 0.2);</string>
    </property>
   </widget>
  </widget>
