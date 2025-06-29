@@ -25,6 +25,75 @@
   <property name="windowTitle">
    <string>Word_Brochure</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* 列表样式 */
+QListWidget {
+    background-color: #ffffff;
+    border: 1px solid #d0e0ff;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 14px;
+    color: #2c3e50;
+    outline: none;
+}
+
+QListWidget::item {
+    padding: 8px;
+    border-bottom: 1px solid #e8f0ff;
+}
+
+QListWidget::item:selected {
+    background-color: #e6f0ff;
+    color: #1a73e8;
+    border-radius: 4px;
+}
+
+/* 按钮通用样式 */
+QPushButton {
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-weight: 500;
+    color: #2c3e50;
+    background-color: #e6f0ff;
+    min-height: 30px;
+}
+
+QPushButton:hover {
+    background-color: #d9e7ff;
+}
+
+QPushButton:pressed {
+    background-color: #c2d6ff;
+}
+
+/* 特殊按钮样式 */
+QPushButton#Play_button {
+    font-size: 14px;
+    font-weight: 600;
+    background-color: #e0eeff;
+}
+
+QPushButton#Load_button,
+QPushButton#Back_button {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* 标签样式 */
+QLabel#Current_chosen_word {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a73e8;
+    background: transparent;
+    qproperty-alignment: AlignCenter;
+}</string>
+  </property>
   <widget class="QListWidget" name="Word_bank">
    <property name="geometry">
     <rect>

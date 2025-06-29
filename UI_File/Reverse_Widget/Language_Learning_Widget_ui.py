@@ -21,18 +21,17 @@ class Ui_Main_Window(object):
 "    /* 主窗口样式 */\n"
 "    QWidget#Main_Window {\n"
 "        background: qlineargradient(x1:0, y1:0, x2:1, y2:1,\n"
-"            stop:0 #f5f9ff, stop:1 #e6f0ff);\n"
+"            stop:0 #f8fbff, stop:1 #e6f0ff);\n"
 "        border: 1px solid #d0e0ff;\n"
 "        border-radius: 12px;\n"
 "    }\n"
 "    \n"
 "    /* 标题样式 */\n"
-"    QLabel#Title {\n"
+"    QLabel {\n"
 "        color: #2c3e50;\n"
-"        font-family: \'Segoe UI\', Arial, sans-serif;\n"
+"        font-family: \'Segoe UI\', \'Arial\', sans-serif;\n"
 "        font-weight: 600;\n"
 "        background: transparent;\n"
-"        text-align: center;\n"
 "    }\n"
 "    \n"
 "    /* 按钮通用样式 */\n"
@@ -42,8 +41,7 @@ class Ui_Main_Window(object):
 "        color: white;\n"
 "        border: none;\n"
 "        border-radius: 8px;\n"
-"        font-family: \'Segoe UI\', Arial, sans-serif;\n"
-"        font-size: 16px;\n"
+"        font-family: \'Segoe UI\', \'Arial\', sans-serif;\n"
 "        font-weight: 600;\n"
 "        padding: 8px;\n"
 "        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n"
@@ -73,13 +71,14 @@ class Ui_Main_Window(object):
 "    QPushButton#Exit_button {\n"
 "        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,\n"
 "            stop:0 #e74c3c, stop:1 #d62c1a);\n"
+"        font-size: 14px;\n"
 "    }\n"
 "    \n"
 "    /* 主要功能按钮样式 */\n"
 "    QPushButton#Test_button, \n"
 "    QPushButton#Search_button, \n"
 "    QPushButton#Brochure_button {\n"
-"        font-size: 18px;\n"
+"        font-size: 16px;\n"
 "        min-height: 80px;\n"
 "    }\n"
 "   ")
@@ -100,33 +99,58 @@ class Ui_Main_Window(object):
 "    ")
         self.bg_decoration2.setObjectName("bg_decoration2")
         self.Test_button = QtWidgets.QPushButton(Main_Window)
-        self.Test_button.setGeometry(QtCore.QRect(360, 120, 351, 101))
+        self.Test_button.setGeometry(QtCore.QRect(360, 100, 351, 85))
         self.Test_button.setObjectName("Test_button")
         self.Search_button = QtWidgets.QPushButton(Main_Window)
-        self.Search_button.setGeometry(QtCore.QRect(360, 240, 351, 101))
+        self.Search_button.setGeometry(QtCore.QRect(360, 200, 351, 85))
         self.Search_button.setObjectName("Search_button")
         self.Brochure_button = QtWidgets.QPushButton(Main_Window)
-        self.Brochure_button.setGeometry(QtCore.QRect(360, 360, 351, 101))
+        self.Brochure_button.setGeometry(QtCore.QRect(360, 300, 351, 85))
         self.Brochure_button.setObjectName("Brochure_button")
         self.Exit_button = QtWidgets.QPushButton(Main_Window)
-        self.Exit_button.setGeometry(QtCore.QRect(50, 400, 191, 71))
+        self.Exit_button.setGeometry(QtCore.QRect(50, 400, 191, 60))
         self.Exit_button.setObjectName("Exit_button")
         self.Mode_button = QtWidgets.QPushButton(Main_Window)
-        self.Mode_button.setGeometry(QtCore.QRect(550, 20, 151, 71))
+        self.Mode_button.setGeometry(QtCore.QRect(550, 20, 151, 60))
         self.Mode_button.setObjectName("Mode_button")
-        self.Title = QtWidgets.QLabel(Main_Window)
-        self.Title.setGeometry(QtCore.QRect(80, 90, 221, 271))
-        font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(30)
-        font.setBold(True)
-        font.setWeight(75)
-        self.Title.setFont(font)
-        self.Title.setObjectName("Title")
         self.divider = QtWidgets.QLabel(Main_Window)
         self.divider.setGeometry(QtCore.QRect(320, 50, 1, 400))
         self.divider.setStyleSheet("background: rgba(74, 134, 232, 0.2);")
         self.divider.setObjectName("divider")
+        self.bottom_decoration = QtWidgets.QLabel(Main_Window)
+        self.bottom_decoration.setGeometry(QtCore.QRect(50, 380, 650, 1))
+        self.bottom_decoration.setStyleSheet("background: rgba(74, 134, 232, 0.15);")
+        self.bottom_decoration.setObjectName("bottom_decoration")
+        self.Title1 = QtWidgets.QLabel(Main_Window)
+        self.Title1.setGeometry(QtCore.QRect(40, 100, 260, 70))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        font.setPointSize(20)
+        font.setBold(True)
+        font.setWeight(75)
+        self.Title1.setFont(font)
+        self.Title1.setAlignment(QtCore.Qt.AlignCenter)
+        self.Title1.setObjectName("Title1")
+        self.Title2 = QtWidgets.QLabel(Main_Window)
+        self.Title2.setGeometry(QtCore.QRect(40, 170, 260, 70))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setWeight(75)
+        self.Title2.setFont(font)
+        self.Title2.setAlignment(QtCore.Qt.AlignCenter)
+        self.Title2.setObjectName("Title2")
+        self.Title3 = QtWidgets.QLabel(Main_Window)
+        self.Title3.setGeometry(QtCore.QRect(40, 240, 260, 70))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        font.setPointSize(20)
+        font.setBold(True)
+        font.setWeight(75)
+        self.Title3.setFont(font)
+        self.Title3.setAlignment(QtCore.Qt.AlignCenter)
+        self.Title3.setObjectName("Title3")
 
         self.retranslateUi(Main_Window)
         QtCore.QMetaObject.connectSlotsByName(Main_Window)
@@ -139,8 +163,6 @@ class Ui_Main_Window(object):
         self.Brochure_button.setText(_translate("Main_Window", "My Word Brochure"))
         self.Exit_button.setText(_translate("Main_Window", "Exit"))
         self.Mode_button.setText(_translate("Main_Window", "Mode Select"))
-        self.Title.setText(_translate("Main_Window", "Language\n"
-"\n"
-" Learning\n"
-"\n"
-"   Module"))
+        self.Title1.setText(_translate("Main_Window", "Language"))
+        self.Title2.setText(_translate("Main_Window", "Learning"))
+        self.Title3.setText(_translate("Main_Window", "Module"))
