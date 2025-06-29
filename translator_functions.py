@@ -8,7 +8,6 @@ from PyQt5.QtCore import Qt, QRect, QPoint, QSize, QTimer
 from PyQt5.QtGui import QGuiApplication,QPainter, QColor,QPen
 
 
-# 设置 pytesseract 使用的临时文件夹为一个干净的英文路径
 os.environ["TMP"] = "D:\\Desk_Pet_Data_Storage\\Temp"
 os.environ["TEMP"] = "D:\\Desk_Pet_Data_Storage\\Temp"
 
