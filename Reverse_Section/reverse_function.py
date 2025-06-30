@@ -138,7 +138,7 @@ async def check_file_exist(file_path, timeout=5):
             time.sleep(0.05)
     await asyncio.to_thread(blocking_wait)
 
-
+import random
 
 # Programme Assistent:
 def load_word_list(mode = "default"):
@@ -158,7 +158,8 @@ def load_word_list(mode = "default"):
             address = v_data.INITIAL_ADDRESS if mode == "default" else v_data.TEST_ADDRESS
             scale = INITIAL_SCALE if mode == "default" else TEST_SCALE
             with open(address, "r", encoding="utf-8") as file:
-                tmp = [line.strip() for line in file.readlines()[:scale]]
+                tmp = [line.strip() for line in file.readlines()]
+                tmp = random.sample(tmp,scale)
         except Exception as e:  print(f"Ewerror when first loading word list: {e}")
     return tmp
     
