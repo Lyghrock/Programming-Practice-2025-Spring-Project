@@ -286,8 +286,17 @@ class Test_Widget(QWidget,Ui_Test_Window):
         self.Pause_button.clicked.connect(self.Pause_button_clicked)
         
         self.test_mode = self.choose_mode()
+        if self.test_mode is None: 
+            self.close()
+            return
         self.test_display_mode = self.choose_display_mode()
+        if self.test_display_mode is None: 
+            self.close()
+            return
         params_for_init = self.prepare_for_initialize_params(self.test_mode)
+        if params_for_init is None: 
+            self.close()
+            return
         if params_for_init is None:
             self.Upper_parent.show()
             self.set_all_buttons_enabled(False)
@@ -397,22 +406,20 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             "Selected words",   # 用于特殊装载, 留接口可以用
             "Words from my Brochure"
         ]
-        current_mode, _ = QInputDialog.getItem(self, "Initializing......", 
-            "Please choose your preferred mode.", mode_selection, 0, False )
-        if not _ or not current_mode:     
-            self.Upper_parent.show()
-            self.close()
+        current_mode, _ = v_data.CustomItemDialog.getItem(
+            self, "Initializing......", 
+            "Please choose your preferred mode.", mode_selection)
+        if not _ or not current_mode:   return None
             
         return current_mode
     
     def choose_display_mode(self):
         # 初始化按钮和test的选择模式：
-        current_display_mode, _2 = QInputDialog.getItem(self, "Choosing Test Icon...",
+        current_display_mode, _2 = v_data.CustomItemDialog.getItem(
+            self, "Choosing Test Icon...",
             "Please choose your preferred traits for test.", 
-            ["definition", "translation", "word", "picture"], 0, False)
-        if not _2 or not current_display_mode:     
-            self.Upper_parent.show()
-            self.close()
+            ["definition", "translation", "word", "picture"])
+        if not _2 or not current_display_mode:   return None
 
         return current_display_mode
     
@@ -425,10 +432,10 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             
             # 输入一个合理的random size: 
             jdg, jdg_count = False, 0
-            while jdg_count < 3:
-                size, jdg = QInputDialog.getInt(self, "Random Slicing Size"
+            while jdg_count < 1:
+                size, jdg = v_data.CustomIntDialog.getInt(self, "Random Slicing Size"
                     , "Please input a size for your upcoming test.", 
-                    min = 20, max = math.floor(total_l/4))
+                        min = 20, max = math.floor(total_l/4))
                 jdg_count += 1
                 if jdg:   break
             else:   
@@ -443,14 +450,16 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             # NOTICE: 此处并非任何.db文件都可以被load，将检测其是否具有我的.db形式
             
             jdg_count = False
-            while jdg_count < 3:
+            while jdg_count < 1:
                 # QFileDialog来选择自定义.db文件，检测是否正常获取
-                test_address, _ = QFileDialog.getOpenFileName(self, "Please Choose your word bank",
-                        "", "Database Files (*.db);;All Files (*)"  )
+                test_address, _ = v_data.CustomFileOpenDialog.getOpenFileName(
+                        self, "Selected Word_Bank",
+                        "Please Choose your word bank", 
+                        "Database Files (*.db);;All Files (*)"  )
                 jdg_count += 1
                 test_key = v_func.check_data_validity(test_address,"word_bank")
                 if test_key:    break
-                else:    QMessageBox.warning(self, "Error", "Please select a valid .db file with correct format.")
+                else:    v_data.show_wrapped_message_box(self, "Error", "Please select a valid .db file with correct format.")
             else:   
                 print("Fail to get a valid path.")
                 return None
@@ -554,15 +563,15 @@ class Finish_Test_Widget(QWidget,Ui_Finish_Test):
         self.close_source = "Save"
         jdg_count = 0
         while jdg_count < 10:
-            file_name, _ = QInputDialog.getText(self, 
+            file_name, _ = v_data.CustomTextDialog.getText(self, 
                 "Storing savings...","Please give your test a name.")
             if not _:   
-                QMessageBox.warning(self,"Warning", "Empty input? Please Try Again!")
+                v_data.show_wrapped_message_box(self,"Warning", "Empty input? Please Try Again!")
             elif len(file_name) > 15:   
-                QMessageBox.warning(self, "Warning", 
+                v_data.show_wrapped_message_box(self, "Warning", 
                     "Input Too Long! Please rephrase it within 15 characters.")
             elif re.search(r'[\\/:*?"<>|]', file_name):
-                QMessageBox.warning(self, "Warning", "Invalid characters in filename!")
+                v_data.show_wrapped_message_box(self, "Warning", "Invalid characters in filename!")
             else:   
                 real_file_name = (f"Name_{file_name}."
                                 f"Mode_{self.Upper_parent.test_display_mode}."
@@ -573,7 +582,7 @@ class Finish_Test_Widget(QWidget,Ui_Finish_Test):
 
                 current_path = os.path.join(v_data.TEST_RESULT_ADDRESS,real_file_name)
                 if os.path.exists(current_path) and os.path.isfile(current_path):
-                    QMessageBox.warning(self,"Warning", "Repeated Name! Please change it!")
+                    v_data.show_wrapped_message_box(self,"Warning", "Repeated Name! Please change it!")
                 else:    break
         else:   raise Exception("Too Many Trials for File Savings. Check the situation please.")
             
@@ -711,7 +720,7 @@ class Search_Widget(QWidget,Ui_Word_Search):
             
     def show_search_result(self, result):
         if isinstance(result, str):
-            QMessageBox.warning(self, "Warning", result)
+            v_data.show_wrapped_message_box(self, "Warning", result)
         elif result == True:
             assert self.current_word_data, "Data Load Error when searching"
             self.Definition.setText(f"Definition: {self.current_word_data["definition"][:50]}")
@@ -787,6 +796,7 @@ class Word_Bank_Widget(QWidget,Ui_My_Word_Brochure):
         try:    assert text_list, "Unsuccessful .db data-reading."
         except Exception as e:  
             print("It seems your brochure is empty.")
+            self.set_all_buttons_enabled(True)
             return
         self.Word_bank.clear()
         for current_text in text_list:
