@@ -119,12 +119,11 @@ async def reverse_audio(audio_path):
         # # 确保ffmpeg配置成功!
         AudioSegment.converter = pydub.utils.which("ffmpeg")
         AudioSegment.ffprobe = pydub.utils.which("ffprobe")
-        try:
-            audio = AudioSegment.from_file(audio_path, format = "mp3")
-            reversed_audio = audio.reverse()
-            os.remove(audio_path)
-            reversed_audio.export(audio_path, format = "mp3")
-        except Exception as error:  print(f"Error occurs:{error}")
+        
+        audio = AudioSegment.from_file(audio_path, format = "mp3")
+        reversed_audio = audio.reverse()
+        os.remove(audio_path)
+        reversed_audio.export(audio_path, format = "mp3")
     
     await asyncio.to_thread(single_reverse)
         
