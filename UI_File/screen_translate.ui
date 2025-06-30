@@ -10,7 +10,16 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', sans-serif;
+}</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>15</number>
+   </property>
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
@@ -20,7 +29,10 @@
       <set>Qt::AlignCenter</set>
      </property>
      <property name="styleSheet">
-      <string notr="true">font-size: 18px; font-weight: bold;</string>
+      <string notr="true">font-size: 22px;
+font-weight: bold;
+color: #1a73e8;
+padding: 10px;</string>
      </property>
     </widget>
    </item>
@@ -32,18 +44,43 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>40</height>
+       <height>50</height>
       </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #e6f0ff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #2c3e50;
+    padding: 10px;
+}
+
+QPushButton:hover {
+    background-color: #d9e7ff;
+}
+
+QPushButton:pressed {
+    background-color: #c2d6ff;
+}</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QTextEdit" name="text_result">
      <property name="styleSheet">
-      <string notr="true">background-color: #F8F8F8;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-padding: 10px;</string>
+      <string notr="true">QTextEdit {
+    background-color: #ffffff;
+    border: 1px solid #d0e0ff;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    color: #2c3e50;
+    selection-background-color: #e6f0ff;
+    selection-color: #1a73e8;
+}</string>
      </property>
     </widget>
    </item>
@@ -66,6 +103,30 @@ padding: 10px;</string>
       <widget class="QPushButton" name="btn_back">
        <property name="text">
         <string>返回</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    padding: 8px 16px;
+    color: #5a6d88;
+}
+
+QPushButton:hover {
+    background-color: #e6e6e6;
+}
+
+QPushButton:pressed {
+    background-color: #d9d9d9;
+}</string>
        </property>
       </widget>
      </item>

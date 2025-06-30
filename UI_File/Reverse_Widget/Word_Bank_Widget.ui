@@ -25,13 +25,82 @@
   <property name="windowTitle">
    <string>Word_Brochure</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* 列表样式 */
+QListWidget {
+    background-color: #ffffff;
+    border: 1px solid #d0e0ff;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 14px;
+    color: #2c3e50;
+    outline: none;
+}
+
+QListWidget::item {
+    padding: 8px;
+    border-bottom: 1px solid #e8f0ff;
+}
+
+QListWidget::item:selected {
+    background-color: #e6f0ff;
+    color: #1a73e8;
+    border-radius: 4px;
+}
+
+/* 按钮通用样式 */
+QPushButton {
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-weight: 500;
+    color: #2c3e50;
+    background-color: #e6f0ff;
+    min-height: 30px;
+}
+
+QPushButton:hover {
+    background-color: #d9e7ff;
+}
+
+QPushButton:pressed {
+    background-color: #c2d6ff;
+}
+
+/* 特殊按钮样式 */
+QPushButton#Play_button {
+    font-size: 14px;
+    font-weight: 600;
+    background-color: #e0eeff;
+}
+
+QPushButton#Load_button,
+QPushButton#Back_button {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* 标签样式 */
+QLabel#Current_chosen_word {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a73e8;
+    background: transparent;
+    qproperty-alignment: AlignCenter;
+}</string>
+  </property>
   <widget class="QListWidget" name="Word_bank">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>260</y>
+     <y>200</y>
      <width>231</width>
-     <height>301</height>
+     <height>361</height>
     </rect>
    </property>
   </widget>
@@ -52,7 +121,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>70</y>
+     <y>40</y>
      <width>151</width>
      <height>61</height>
     </rect>
@@ -60,18 +129,34 @@
    <property name="text">
     <string>Current_chosen_word</string>
    </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="Play_button">
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>160</y>
+     <y>120</y>
      <width>201</width>
      <height>61</height>
     </rect>
    </property>
    <property name="text">
     <string>Standard_Voice</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Load_button">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>580</y>
+     <width>111</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Load_Brochure</string>
    </property>
   </widget>
  </widget>
