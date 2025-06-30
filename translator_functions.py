@@ -149,7 +149,7 @@ class ScreenSelector_For_Translator(QWidget):
 
 
 class ScreenSelector_For_ScreenSelect(QWidget):
-    def __init__(self):
+    def __init__(self,on_finished_callback):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -159,6 +159,7 @@ class ScreenSelector_For_ScreenSelect(QWidget):
         self.origin = QPoint()
         self.current_pos = QPoint()
         self.selecting = False
+        self.on_finished_callback=on_finished_callback
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -201,7 +202,8 @@ class ScreenSelector_For_ScreenSelect(QWidget):
         full_screenshot = screen.grabWindow(0)
         cropped = full_screenshot.copy(rect)
         QApplication.clipboard().setPixmap(cropped)
-
+        if self.on_finished_callback:
+            self.on_finished_callback()
         self.close()
 
 #使用方式如下

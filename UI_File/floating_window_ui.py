@@ -47,7 +47,7 @@ class Ui_FloatPet(object):
 "                border-radius: 8px;\n"
 "                border: 1px solid #D0D0D0;\n"
 "            "))
-        self.btn_study.setText(_translate("FloatPet", "学习中心"))
+        self.btn_study.setText(_translate("FloatPet", "反语"))
         self.btn_study.setStyleSheet(_translate("FloatPet", "\n"
 "                            QPushButton { \n"
 "                                background-color: #FFECB3; /* 柔和的米黄色 */\n"
@@ -66,7 +66,7 @@ class Ui_FloatPet(object):
 "                                background-color: #FFD54F; \n"
 "                            }\n"
 "                        "))
-        self.btn_translation.setText(_translate("FloatPet", "屏幕翻译"))
+        self.btn_translation.setText(_translate("FloatPet", "屏翻"))
         self.btn_translation.setStyleSheet(_translate("FloatPet", "\n"
 "                            QPushButton { \n"
 "                                background-color: #E1F5FE; /* 柔和的淡蓝色 */\n"
@@ -85,7 +85,7 @@ class Ui_FloatPet(object):
 "                                background-color: #81D4FA; \n"
 "                            }\n"
 "                        "))
-        self.btn_chat.setText(_translate("FloatPet", "智能对话"))
+        self.btn_chat.setText(_translate("FloatPet", "对话"))
         self.btn_chat.setStyleSheet(_translate("FloatPet", "\n"
 "                            QPushButton { \n"
 "                                background-color: #E8F5E9; /* 柔和的淡绿色 */\n"
@@ -104,7 +104,7 @@ class Ui_FloatPet(object):
 "                                background-color: #A5D6A7; \n"
 "                            }\n"
 "                        "))
-        self.btn_screenshot.setText(_translate("FloatPet", "📷"))
+        self.btn_screenshot.setText(_translate("FloatPet", "截屏"))
         self.btn_screenshot.setStyleSheet(_translate("FloatPet", "\n"
 "                            QPushButton { \n"
 "                                background-color: #FFCCBC; /* 柔和的橙色 */\n"

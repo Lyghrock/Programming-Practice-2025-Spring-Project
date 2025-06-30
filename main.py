@@ -14,6 +14,7 @@ import Reverse_Section.reverse_data_storage as v_data
 from LLM_chating_functions import get_DeepSeek_response
 from pet_player import GifPetWindow
 
+
 class FloatPet(QWidget, Ui_FloatPet):
     def __init__(self):
         super().__init__()
@@ -123,33 +124,16 @@ class FloatPet(QWidget, Ui_FloatPet):
         
     # 新增截屏功能
     def take_screenshot(self):
+        def after_screenshot():
+            self.show()
+        
         self.hide()  # 隐藏桌宠窗口
-        self.screen_selector = ScreenSelector_For_ScreenSelect(
-            on_finished_callback=self.handle_screenshot_finished
-        )
-        self.screen_selector.showFullScreen()
+        self.selector = ScreenSelector_For_ScreenSelect(after_screenshot)   
+        self.selector.showFullScreen()
+        QTimer.singleShot(100, self.selector.raise_)
+        QTimer.singleShot(100, self.selector.activateWindow)
         
-    def handle_screenshot_finished(self, selected_rect):
-        """处理截图完成后的操作"""
-        # 显示桌宠窗口
-        self.show()
-        
-        # 检查是否选择了有效区域
-        if not selected_rect.isValid() or selected_rect.isEmpty():
-            QMessageBox.information(self, "截屏", "截图已取消")
-            return
-            
-        # 截取屏幕
-        screen = QGuiApplication.primaryScreen()
-        screenshot = screen.grabWindow(0, selected_rect.x(), selected_rect.y(), 
-                                      selected_rect.width(), selected_rect.height())
-        
-        # 复制到剪贴板
-        clipboard = QApplication.clipboard()
-        clipboard.setPixmap(screenshot)
-        
-        # 显示成功消息
-        QMessageBox.information(self, "截屏", "截图已复制到剪贴板！")
+    
 
 class TranslationWindow(QWidget, Ui_Translation):
     def __init__(self, float_pet):
@@ -221,6 +205,7 @@ class ChatWindow(QWidget, Ui_Chat):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    QApplication.setQuitOnLastWindowClosed(False)
 
     # 使用 qasync 的事件循环
     loop = QEventLoop(app)

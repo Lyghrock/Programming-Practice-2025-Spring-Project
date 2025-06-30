@@ -1,6 +1,6 @@
 from GIF_selector import get_random_gif
 
-from PyQt5.QtWidgets import QWidget, QLabel
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QApplication
 from PyQt5.QtCore import Qt, QPoint,QTimer
 from PyQt5.QtGui import QMovie
 from datetime import datetime
@@ -66,6 +66,29 @@ class GifPetWindow(QWidget):
         self.click_timer.setSingleShot(True)
         self.click_timer.timeout.connect(self._on_single_click_timeout)
         self._pending_single_click = False
+
+        #关闭按钮
+        self.close_btn = QPushButton("✕", self)
+        self.close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 80, 80, 200);
+                border: none;
+                color: white;
+                font-weight: bold;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: red;
+            }
+        """)
+        self.close_btn.setFixedSize(20, 20)
+        self.close_btn.move(self.width() - 25, 5)
+        self.close_btn.hide()
+        self.close_btn.clicked.connect(QApplication.quit)
+
+        # 保证窗口移动后按钮位置仍然正确
+        self.installEventFilter(self)
+
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -136,6 +159,24 @@ class GifPetWindow(QWidget):
             self.float_pet.show()
         else:
             self.float_pet.hide()
+
+    
+    def enterEvent(self, event):
+        self.close_btn.show()
+
+    def leaveEvent(self, event):
+        # 延迟隐藏按钮，避免太敏感
+        QTimer.singleShot(700, self._check_mouse_out)
+
+    def _check_mouse_out(self):
+        if not self.underMouse():
+            self.close_btn.hide()
+
+    def resizeEvent(self, event):
+        # 始终将关闭按钮保持在右上角
+        self.close_btn.move(self.width() - 25, 5)
+    
+    
 
 
 
