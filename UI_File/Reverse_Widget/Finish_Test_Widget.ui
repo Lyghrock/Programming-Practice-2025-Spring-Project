@@ -25,14 +25,58 @@
   <property name="windowTitle">
    <string>Finish_Test</string>
   </property>
+  <widget class="QLabel" name="Test_result">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>20</y>
+     <width>331</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+          font-size: 18px;
+          font-weight: bold;
+          color: #2D3748;
+        </string>
+   </property>
+   <property name="text">
+    <string>Result</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
   <widget class="QPushButton" name="Save_button">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>80</y>
-     <width>131</width>
-     <height>51</height>
+     <x>70</x>
+     <y>90</y>
+     <width>111</width>
+     <height>41</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+          QPushButton {
+            background-color: #4C7DE9;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+          }
+          QPushButton:hover {
+            background-color: #3A6AD9;
+          }
+          QPushButton:pressed {
+            background-color: #2A5AC4;
+          }
+        </string>
    </property>
    <property name="text">
     <string>Save</string>
@@ -42,29 +86,31 @@
    <property name="geometry">
     <rect>
      <x>210</x>
-     <y>80</y>
-     <width>131</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Abandon</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="Test_result">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>20</y>
-     <width>141</width>
+     <y>90</y>
+     <width>121</width>
      <height>41</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Result</string>
+   <property name="styleSheet">
+    <string notr="true">
+          QPushButton {
+            background-color: #F1F5F9;
+            color: #64748B;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 1px solid #E2E8F0;
+          }
+          QPushButton:hover {
+            background-color: #E2E8F0;
+          }
+          QPushButton:pressed {
+            background-color: #CBD5E1;
+          }
+        </string>
    </property>
-   <property name="wordWrap">
-    <bool>true</bool>
+   <property name="text">
+    <string>Abandon</string>
    </property>
   </widget>
  </widget>

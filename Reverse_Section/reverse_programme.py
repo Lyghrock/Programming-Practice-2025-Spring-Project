@@ -273,6 +273,7 @@ class Test_Widget(QWidget,Ui_Test_Window):
         self.correct_count = 0
         self.current_idx = 0
         self.test_display_mode = str()
+        self.cancelled_from_init = False
         
         # 默认按钮在button_List里的顺序是A/B/C/D：
         self.option_button_list = list()
@@ -287,22 +288,20 @@ class Test_Widget(QWidget,Ui_Test_Window):
         
         self.test_mode = self.choose_mode()
         if self.test_mode is None: 
-            self.close()
+            self.cancelled_from_init = True
+            QTimer.singleShot(0, self.close)
             return
         self.test_display_mode = self.choose_display_mode()
         if self.test_display_mode is None: 
-            self.close()
+            self.cancelled_from_init = True
+            QTimer.singleShot(0, self.close)
             return
         params_for_init = self.prepare_for_initialize_params(self.test_mode)
         if params_for_init is None: 
-            self.close()
+            self.cancelled_from_init = True
+            QTimer.singleShot(0, self.close)
             return
-        if params_for_init is None:
-            self.Upper_parent.show()
-            self.set_all_buttons_enabled(False)
-            self.close()    # 保证一定有数据才开始test
-            return
-    
+        
         asyncio.create_task(self.initialize(*params_for_init))
     
         self.time_keeper_initialize()
@@ -433,9 +432,10 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             # 输入一个合理的random size: 
             jdg, jdg_count = False, 0
             while jdg_count < 1:
-                size, jdg = v_data.CustomIntDialog.getInt(self, "Random Slicing Size"
+                size, jdg = v_data.CustomIntDialog.getInt(self, 
+                    "Random Slicing Size"
                     , "Please input a size for your upcoming test.", 
-                        min = 20, max = math.floor(total_l/4))
+                    20, math.floor(total_l/4))
                 jdg_count += 1
                 if jdg:   break
             else:   
@@ -472,7 +472,11 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
             test_key = v_func.check_data_validity(v_data.WORD_BROCHURE_ADDRESS, "word_brochure")
             if test_key:
                 test_address = v_data.WORD_BROCHURE_ADDRESS
-                size = v_func.get_data_size(address = test_address, type_name = "word_bank")
+                size = v_func.get_data_size(address = test_address, type_name = "word_brochure")
+                if size < 4:    
+                    v_data.show_wrapped_message_box(self,"Warning for Brochure Test"
+                        ,"Your brochure's size is too small for a proper test!")
+                    return None
                 slicing = list(range(0,size))
             else:   
                 print("Word Brochure Stroage is invalid, please check.")
@@ -493,7 +497,8 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
         for index in slicing:
             current_key = test_key[index]
             current_data = await v_func.get_data_from_database(current_key,
-                address = test_address, type_name = "word_bank")
+                address = test_address, type_name = "word_bank" 
+                    if self.test_mode != "Words from my Brochure" else "word_brochure")
             self.test_data_storage.setdefault(current_key, current_data)
             
         # random为每个问题生成4个answer装入question:
@@ -521,13 +526,16 @@ out of {len(self.questions)} with a time of {self.min_count:0>2}:{self.sec_count
         for btn in self.findChildren(QPushButton):    btn.setEnabled(enabled)
         
     def closeEvent(self, event):
-        reply = QMessageBox.question(
-            self, "Confirmation",
-            "Be sure that you want to exit the current Test!",
-            QMessageBox.Yes | QMessageBox.No,   QMessageBox.No
-        )
+        
+        if not self.cancelled_from_init:
+            reply = QMessageBox.question(
+                self, "Confirmation",
+                "Be sure that you want to exit the current Test!",
+                QMessageBox.Yes | QMessageBox.No,   QMessageBox.No
+            )
         # Remember to eliminate the generated temp_data_storage
-        if reply ==  QMessageBox.Yes:
+        if (not self.cancelled_from_init and reply == 
+                QMessageBox.Yes) or self.cancelled_from_init:
             self.Upper_parent.show()
             self.Upper_parent.set_all_buttons_enabled(True)
             event.accept()
@@ -651,6 +659,7 @@ class Search_Widget(QWidget,Ui_Word_Search):
         
         self.set_all_buttons_enabled(False)
         self.Search_word_button.setEnabled(True)
+        self.Back_button.setEnabled(True)
         
     @asyncSlot() 
     async def Search_word_button_clicked(self):
@@ -779,8 +788,10 @@ class Word_Bank_Widget(QWidget,Ui_My_Word_Brochure):
         self.Load_button.clicked.connect(self.load_brochure_text)
         self.Play_button.clicked.connect(self.Play_button_clicked)
         self.Back_button.clicked.connect(self.Back_button_clicked)
+        
         self.set_all_buttons_enabled(False)
         self.Load_button.setEnabled(True)
+        self.Back_button.setEnabled(True)
         
         asyncio.create_task(self.get_brochure_text_data())
         

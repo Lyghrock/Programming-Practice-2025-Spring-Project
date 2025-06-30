@@ -25,10 +25,72 @@
   <property name="windowTitle">
    <string>Test_Window</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+QPushButton {
+    border: none;
+    border-radius: 10px;
+    padding: 8px;
+    font-weight: 500;
+    color: #2c3e50;
+    background-color: #e6f0ff;
+    min-height: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+QPushButton:hover {
+    background-color: #d9e7ff;
+}
+
+QPushButton:pressed {
+    background-color: #c2d6ff;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+QPushButton#Play_current_button, 
+QPushButton#Add_button {
+    background-color: #e0eeff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+QPushButton#A_button, QPushButton#B_button,
+QPushButton#C_button, QPushButton#D_button {
+    font-size: 36px;
+    font-weight: 700;
+    background-color: #f0f7ff;
+    color: #000000;  /* 修改为黑色 */
+}
+
+QProgressBar {
+    border: 1px solid #cce0ff;
+    border-radius: 6px;
+    background: white;
+    text-align: center;
+    height: 20px;
+}
+
+QProgressBar::chunk {
+    background-color: #4d94ff;
+    border-radius: 5px;
+}
+
+QLabel#Time_keeper {
+    font-family: 'Lucida Sans Typewriter', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: #4d94ff;
+    background: transparent;
+}</string>
+  </property>
   <widget class="QPushButton" name="A_button">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>80</x>
      <y>170</y>
      <width>211</width>
      <height>121</height>
@@ -41,7 +103,7 @@
   <widget class="QPushButton" name="D_button">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>360</x>
      <y>300</y>
      <width>211</width>
      <height>121</height>
@@ -54,7 +116,7 @@
   <widget class="QPushButton" name="C_button">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>80</x>
      <y>300</y>
      <width>211</width>
      <height>121</height>
@@ -67,7 +129,7 @@
   <widget class="QPushButton" name="B_button">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>360</x>
      <y>170</y>
      <width>211</width>
      <height>121</height>
@@ -93,8 +155,8 @@
   <widget class="QPushButton" name="Play_current_button">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>70</y>
+     <x>80</x>
+     <y>90</y>
      <width>251</width>
      <height>61</height>
     </rect>
@@ -106,8 +168,8 @@
   <widget class="QPushButton" name="Add_button">
    <property name="geometry">
     <rect>
-     <x>450</x>
-     <y>70</y>
+     <x>400</x>
+     <y>90</y>
      <width>131</width>
      <height>61</height>
     </rect>
@@ -119,7 +181,7 @@
   <widget class="QProgressBar" name="Test_Progress">
    <property name="geometry">
     <rect>
-     <x>450</x>
+     <x>360</x>
      <y>30</y>
      <width>171</width>
      <height>31</height>
@@ -132,7 +194,7 @@
   <widget class="QLabel" name="Time_keeper">
    <property name="geometry">
     <rect>
-     <x>370</x>
+     <x>230</x>
      <y>30</y>
      <width>61</width>
      <height>31</height>
@@ -141,14 +203,12 @@
    <property name="font">
     <font>
      <family>Lucida Sans Typewriter</family>
-     <pointsize>12</pointsize>
+     <pointsize>-1</pointsize>
+     <fontweight>DemiBold</fontweight>
     </font>
    </property>
    <property name="text">
     <string>00:00</string>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
    </property>
   </widget>
  </widget>

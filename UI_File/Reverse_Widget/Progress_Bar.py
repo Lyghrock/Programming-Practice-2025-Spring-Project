@@ -14,17 +14,18 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Progress_Keeper(object):
     def setupUi(self, Progress_Keeper):
         Progress_Keeper.setObjectName("Progress_Keeper")
-        Progress_Keeper.resize(350, 100)
-        Progress_Keeper.setMinimumSize(QtCore.QSize(350, 100))
-        Progress_Keeper.setMaximumSize(QtCore.QSize(350, 100))
+        Progress_Keeper.resize(350, 120)
+        Progress_Keeper.setMinimumSize(QtCore.QSize(350, 120))
+        Progress_Keeper.setMaximumSize(QtCore.QSize(350, 120))
         self.progress_keeper = QtWidgets.QProgressBar(Progress_Keeper)
-        self.progress_keeper.setGeometry(QtCore.QRect(70, 50, 221, 31))
+        self.progress_keeper.setGeometry(QtCore.QRect(70, 70, 221, 31))
         self.progress_keeper.setProperty("value", 0)
         self.progress_keeper.setInvertedAppearance(False)
         self.progress_keeper.setObjectName("progress_keeper")
         self.Annotations = QtWidgets.QLabel(Progress_Keeper)
-        self.Annotations.setGeometry(QtCore.QRect(140, 20, 81, 21))
+        self.Annotations.setGeometry(QtCore.QRect(30, 10, 291, 51))
         self.Annotations.setWordWrap(True)
+        self.Annotations.setAlignment(QtCore.Qt.AlignCenter)
         self.Annotations.setObjectName("Annotations")
 
         self.retranslateUi(Progress_Keeper)

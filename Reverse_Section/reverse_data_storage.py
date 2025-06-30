@@ -86,7 +86,7 @@ class CustomItemDialog(QDialog):
         
 
 class CustomIntDialog(QDialog):
-    def __init__(self, parent, title, label_text, min_val=0, max_val=100,default = 30):
+    def __init__(self, parent, title, label_text, min_val=0, max_val=100, default = 30):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setMinimumSize(400, 200)
@@ -155,8 +155,8 @@ class CustomTextDialog(QDialog):
         return self.line_edit.text()
     
     @staticmethod
-    def getText(parent, title, label, default_text=''):
-        dialog = CustomTextDialog(parent,title, label, default_text)
+    def getText(parent, title, label):
+        dialog = CustomTextDialog(parent,title, label)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             return dialog.getValue(), True
@@ -235,5 +235,15 @@ def show_wrapped_message_box(parent, title, message, icon=QMessageBox.Informatio
         label.setFont(font)
         label.setMinimumWidth(400)  # 可调宽度
         label.setMaximumWidth(600)
+        
+    msg_box.setStyleSheet("""
+        QLabel {
+            min-width: 400px;
+            max-width: 600px;
+            font-size: 11pt;
+        }
+    """)
+    
+    msg_box.setTextFormat(Qt.PlainText)
 
     msg_box.exec_()
